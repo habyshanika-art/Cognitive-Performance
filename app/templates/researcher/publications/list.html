@@ -1,0 +1,85 @@
+{% extends "researcher/base_researcher.html" %}
+{% block title %}My Publications{% endblock %}
+{% block page_title %}Research Publications{% endblock %}
+{% block page_subtitle %}Create and publish research articles{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('researcher.publications_create') }}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg me-1"></i> New Article
+</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small text-muted">Status</label>
+            <select name="status" class="form-select form-select-sm">
+                <option value="">All</option>
+                {% for s in ['draft', 'published', 'hidden'] %}
+                <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>{{ s|capitalize }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="dashboard-card">
+    <div class="card-body-custom p-0">
+        <div class="table-responsive">
+            <table class="table admin-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Published</th>
+                        <th>Updated</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pub in publications %}
+                    <tr>
+                        <td>
+                            <strong>{{ pub.title }}</strong>
+                            {% if pub.description %}
+                            <div class="small text-muted">{{ pub.description[:60] }}...</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge {% if pub.status == 'published' %}bg-success{% elif pub.status == 'draft' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">
+                                {{ pub.status }}
+                            </span>
+                        </td>
+                        <td class="small">{{ pub.date_published.strftime('%d %b %Y') if pub.date_published else '—' }}</td>
+                        <td class="small">{{ pub.updated_at.strftime('%d %b %Y') if pub.updated_at else '—' }}</td>
+                        <td class="text-end">
+                            <a href="{{ url_for('researcher.publications_edit', pub_id=pub.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <form method="post" action="{{ url_for('researcher.publications_delete', pub_id=pub.id) }}" class="d-inline"
+                                  onsubmit="return confirm('Delete this article?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">No articles yet. <a href="{{ url_for('researcher.publications_create') }}">Create one</a>.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if total_pages > 1 %}
+<div class="pagination-bar">
+    <span class="text-muted small">Page {{ page }} of {{ total_pages }}</span>
+    <div>
+        {% if page > 1 %}<a href="?page={{ page - 1 }}&status={{ status_filter }}" class="btn btn-sm btn-outline-secondary">Previous</a>{% endif %}
+        {% if page < total_pages %}<a href="?page={{ page + 1 }}&status={{ status_filter }}" class="btn btn-sm btn-outline-secondary">Next</a>{% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

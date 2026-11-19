@@ -1,0 +1,90 @@
+{% extends "user/base_dashboard.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block page_title %}Settings{% endblock %}
+
+{% block page_subtitle %}Manage your account preferences{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="dashboard-card mb-4">
+    <div class="card-header-custom">
+        <h5><i class="bi bi-gear me-2"></i>Notification Preferences</h5>
+    </div>
+    <div class="card-body-custom">
+        <form method="post" action="{{ url_for('user.settings') }}">
+            <div class="settings-item">
+                <div>
+                    <strong>Assessment Reminders</strong>
+                    <p class="text-muted-custom mb-0">In-app reminders when assessments are pending.</p>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="notify_assessment_reminders" id="notifyReminders"
+                           {% if current_user.notify_assessment_reminders %}checked{% endif %}>
+                </div>
+            </div>
+            <hr>
+            <div class="settings-item">
+                <div>
+                    <strong>Performance Change Alerts</strong>
+                    <p class="text-muted-custom mb-0">Notify when persistent deviations from your baseline are detected.</p>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="notify_performance_alerts" id="notifyPerformance"
+                           {% if current_user.notify_performance_alerts %}checked{% endif %}>
+                </div>
+            </div>
+            <hr>
+            <div class="settings-item">
+                <div>
+                    <strong>Publication Updates</strong>
+                    <p class="text-muted-custom mb-0">Notify when researchers publish new articles.</p>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="notify_publications" id="notifyPublications"
+                           {% if current_user.notify_publications %}checked{% endif %}>
+                </div>
+            </div>
+            <hr>
+            <div class="settings-item">
+                <div>
+                    <strong>Email delivery</strong>
+                    <p class="text-muted-custom mb-0">
+                        Send copies to <strong>{{ current_user.email }}</strong> when SMTP is configured.
+                        Messages always appear in Profile → Email inbox.
+                    </p>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="notify_email" id="notifyEmail"
+                           {% if current_user.notify_email %}checked{% endif %}>
+                </div>
+            </div>
+            <hr>
+            <div class="settings-item">
+                <div>
+                    <strong>Data Privacy</strong>
+                    <p class="text-muted-custom mb-0">
+                        Researchers see anonymised ID <code>{{ current_user.display_id }}</code> only.
+                        CogMonitor is not a medical diagnosis tool.
+                    </p>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">
+                <i class="bi bi-check-lg me-1"></i> Save Settings
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="dashboard-card border-danger">
+    <div class="card-header-custom">
+        <h5 class="text-danger"><i class="bi bi-trash me-2"></i>Withdraw & Delete My Data</h5>
+    </div>
+    <div class="card-body-custom">
+        <p class="text-muted-custom">Permanently delete assessment data and withdraw research consent.</p>
+        <a href="{{ url_for('user.withdraw_data') }}" class="btn btn-outline-danger">Withdraw / Delete data</a>
+    </div>
+</div>
+
+{% endblock %}

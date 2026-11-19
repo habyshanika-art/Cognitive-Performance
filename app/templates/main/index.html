@@ -1,0 +1,351 @@
+    {% extends "base.html" %}
+    {% block title %}Home — Cognitive Performance Monitoring{% endblock %}
+
+    {% block navbar %}
+    {% include "partials/navbar.html" %}
+    {% endblock %}
+
+    {% block content %}
+
+    {# ─── HERO ─── #}
+    <section class="hero-section" id="home">
+        <div class="container position-relative" style="z-index:2;">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-badge">
+                        <i class="bi bi-shield-check"></i> Early Cognitive Detection Platform
+                    </div>
+                    <h1 class="hero-title">
+                        Monitor Cognitive<br>Performance <span>Proactively</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        A web-based system for continuous detection of early cognitive performance
+                        changes in young adults using typing speed, response time, and task
+                        completion patterns.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        {% if current_user.is_authenticated %}
+                        {% if current_user.role_name == 'admin' %}
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-success btn-lg">
+                        {% elif current_user.role_name == 'researcher' %}
+                        <a href="{{ url_for('researcher.dashboard') }}" class="btn btn-success btn-lg">
+                        {% else %}
+                        <a href="{{ url_for('user.dashboard') }}" class="btn btn-success btn-lg">
+                        {% endif %}
+                            <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+                        </a>
+                        {% else %}
+                        <a href="/register" class="btn btn-success btn-lg">
+                            <i class="bi bi-person-plus me-2"></i>Get Started
+                        </a>
+                        <a href="/login" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="hero-visual">
+                        <div class="pulse-ring"></div>
+                        <div class="hero-card-float">
+                            <div class="text-center mb-3">
+                                <i class="bi bi-activity" style="font-size:2rem;"></i>
+                                <div class="small opacity-75 mt-1">Live Cognitive Metrics</div>
+                            </div>
+                            <div class="hero-stat">
+                                <div class="hero-stat-icon blue"><i class="bi bi-keyboard"></i></div>
+                                <div>
+                                    <div class="hero-stat-value">72 WPM</div>
+                                    <div class="hero-stat-label">Avg. Typing Speed</div>
+                                </div>
+                            </div>
+                            <div class="hero-stat">
+                                <div class="hero-stat-icon green"><i class="bi bi-lightning"></i></div>
+                                <div>
+                                    <div class="hero-stat-value">245 ms</div>
+                                    <div class="hero-stat-label">Avg. Response Time</div>
+                                </div>
+                            </div>
+                            <div class="hero-stat">
+                                <div class="hero-stat-icon teal"><i class="bi bi-bullseye"></i></div>
+                                <div>
+                                    <div class="hero-stat-value">87%</div>
+                                    <div class="hero-stat-label">Overall Cognitive Score</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# ─── ABOUT ─── #}
+    <section class="section" id="about">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <span class="section-label">About the System</span>
+                    <h2 class="section-title">Understanding Cognitive Health Through Interaction</h2>
+                    <p class="text-muted-custom">
+                        The Cognitive Performance Monitoring System tracks subtle changes in how
+                        young adults interact with digital tasks — measuring typing patterns,
+                        reaction speeds, concentration levels, and memory performance over time.
+                    </p>
+                    <p class="text-muted-custom">
+                        By collecting temporal interaction data during routine assessments,
+                        researchers and clinicians can identify early signs of cognitive change
+                        before they become clinically apparent.
+                    </p>
+                    <div class="d-flex gap-4 mt-4">
+                        <div>
+                            <div class="fs-2 fw-bold text-primary">4</div>
+                            <div class="small text-muted-custom">Assessment Types</div>
+                        </div>
+                        <div>
+                            <div class="fs-2 fw-bold text-primary">5×</div>
+                            <div class="small text-muted-custom">Attempts Per Test</div>
+                        </div>
+                        <div>
+                            <div class="fs-2 fw-bold text-primary">24/7</div>
+                            <div class="small text-muted-custom">Continuous Tracking</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="feature-card text-center p-4">
+                                <div class="feature-icon blue mx-auto"><i class="bi bi-keyboard"></i></div>
+                                <h6>Typing Speed</h6>
+                                <p class="small text-muted-custom mb-0">Words per minute tracking</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="feature-card text-center p-4">
+                                <div class="feature-icon green mx-auto"><i class="bi bi-lightning-charge"></i></div>
+                                <h6>Reaction Time</h6>
+                                <p class="small text-muted-custom mb-0">Millisecond precision</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="feature-card text-center p-4">
+                                <div class="feature-icon teal mx-auto"><i class="bi bi-eye"></i></div>
+                                <h6>Concentration</h6>
+                                <p class="small text-muted-custom mb-0">Focus & attention scoring</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="feature-card text-center p-4">
+                                <div class="feature-icon blue mx-auto"><i class="bi bi-memory"></i></div>
+                                <h6>Memory</h6>
+                                <p class="small text-muted-custom mb-0">Recall & retention tests</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# ─── FEATURES ─── #}
+    <section class="section bg-white" id="features">
+        <div class="container text-center">
+            <span class="section-label">Features</span>
+            <h2 class="section-title">Powerful Tools for Cognitive Monitoring</h2>
+            <p class="section-subtitle">Everything you need to track, analyze, and understand cognitive performance trends.</p>
+            <div class="row g-4 text-start">
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon blue"><i class="bi bi-clipboard2-pulse"></i></div>
+                        <h5>4 Cognitive Assessments</h5>
+                        <p>Typing speed, reaction time, concentration, and memory tests — each completed 5 times for reliable averages.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon green"><i class="bi bi-graph-up-arrow"></i></div>
+                        <h5>Performance Charts</h5>
+                        <p>Visual dashboards with historical results, trend graphs, and performance cards to track progress over time.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon teal"><i class="bi bi-database"></i></div>
+                        <h5>Interaction Data Collection</h5>
+                        <p>Captures typing speed, response time, task duration, error rates, and timestamps for every attempt.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon blue"><i class="bi bi-chat-dots"></i></div>
+                        <h5>Researcher Feedback</h5>
+                        <p>Request personalized feedback from researchers who review your cognitive performance data.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# ─── BENEFITS ─── #}
+    <section class="section benefit-section" id="benefits">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-5">
+                    <span class="section-label">Benefits</span>
+                    <h2 class="section-title">Why Use CogMonitor?</h2>
+                    <p class="text-muted-custom">Early detection of cognitive changes can make a significant difference in outcomes for young adults.</p>
+                </div>
+                <div class="col-lg-7">
+                    <div class="benefit-item">
+                        <div class="benefit-check"><i class="bi bi-check-lg"></i></div>
+                        <div>
+                            <h6 class="mb-1">Early Detection</h6>
+                            <p class="text-muted-custom small mb-0">Identify subtle cognitive changes through everyday interaction patterns before clinical symptoms appear.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-check"><i class="bi bi-check-lg"></i></div>
+                        <div>
+                            <h6 class="mb-1">Non-Invasive Monitoring</h6>
+                            <p class="text-muted-custom small mb-0">Simple browser-based assessments — no special equipment or clinic visits required.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-check"><i class="bi bi-check-lg"></i></div>
+                        <div>
+                            <h6 class="mb-1">Research-Backed Insights</h6>
+                            <p class="text-muted-custom small mb-0">Access published cognitive research and receive expert feedback from qualified researchers.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-check"><i class="bi bi-check-lg"></i></div>
+                        <div>
+                            <h6 class="mb-1">Continuous Tracking</h6>
+                            <p class="text-muted-custom small mb-0">Complete assessments at your own pace with automatic score calculation and historical comparison.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# ─── PUBLICATIONS PREVIEW ─── #}
+    <section class="section" id="publications">
+        <div class="container text-center">
+            <span class="section-label">Research</span>
+            <h2 class="section-title">Latest Cognitive Research</h2>
+            <p class="section-subtitle">Published findings from our research team on cognitive performance monitoring.</p>
+            <div class="row g-4 text-start">
+                {% if publications %}
+                    {% for pub in publications %}
+                    <div class="col-md-4">
+                        <div class="pub-card">
+                            <div class="pub-card-header">
+                                <i class="bi bi-journal-medical fs-3"></i>
+                            </div>
+                            <div class="pub-card-body">
+                                <h6>{{ pub.title }}</h6>
+                                <p class="small text-muted-custom">{{ pub.description[:100] }}...</p>
+                                <div class="pub-date"><i class="bi bi-calendar3 me-1"></i>{{ pub.date_published }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-md-4">
+                        <div class="pub-card">
+                            <div class="pub-card-header"><i class="bi bi-journal-medical fs-3"></i></div>
+                            <div class="pub-card-body">
+                                <h6>Temporal Interaction Patterns in Young Adults</h6>
+                                <p class="small text-muted-custom">Exploring how typing speed and response time correlate with cognitive health indicators.</p>
+                                <div class="pub-date"><i class="bi bi-calendar3 me-1"></i>Coming Soon</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="pub-card">
+                            <div class="pub-card-header"><i class="bi bi-journal-medical fs-3"></i></div>
+                            <div class="pub-card-body">
+                                <h6>Early Detection via Digital Assessments</h6>
+                                <p class="small text-muted-custom">A framework for continuous cognitive monitoring using web-based interaction data.</p>
+                                <div class="pub-date"><i class="bi bi-calendar3 me-1"></i>Coming Soon</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="pub-card">
+                            <div class="pub-card-header"><i class="bi bi-journal-medical fs-3"></i></div>
+                            <div class="pub-card-body">
+                                <h6>Memory & Concentration Benchmarks</h6>
+                                <p class="small text-muted-custom">Establishing baseline cognitive metrics for young adult populations.</p>
+                                <div class="pub-date"><i class="bi bi-calendar3 me-1"></i>Coming Soon</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    {# ─── CONTACT ─── #}
+    <section class="section" id="contact">
+        <div class="container">
+            <div class="contact-section">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-6">
+                        <h2 class="fw-bold mb-3">Get In Touch</h2>
+                        <p class="opacity-85">Have questions about cognitive monitoring or want to participate in research? We'd love to hear from you.</p>
+                        <div class="contact-item">
+                            <div class="contact-icon"><i class="bi bi-envelope"></i></div>
+                            <div>haby@gmail.com</div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon"><i class="bi bi-telephone"></i></div>
+                            <div>+94 77 123 4567</div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon"><i class="bi bi-geo-alt"></i></div>
+                            <div>Colombo, Sri Lanka</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 text-center">
+                        <div class="p-4">
+                            <i class="bi bi-headset" style="font-size:4rem; opacity:0.3;"></i>
+                            <h4 class="mt-3">Ready to start monitoring?</h4>
+                            <p class="opacity-75">Create your free account and begin your first cognitive assessment today.</p>
+                            <a href="/register" class="btn btn-light btn-lg mt-2">
+                                <i class="bi bi-person-plus me-2"></i>Create Free Account
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% include "partials/footer.html" %}
+
+    {% endblock %}
+
+    {% block extra_js %}
+    <script>
+        // Smooth scroll only for same-page anchor links (not /login, /register, etc.)
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                const href = a.getAttribute('href');
+                if (!href || href === '#') return;
+                const target = document.querySelector(href);
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+        // Navbar shadow on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.navbar-landing');
+            if (nav) nav.style.boxShadow = window.scrollY > 50 ? '0 4px 20px rgba(0,0,0,0.1)' : '';
+        });
+    </script>
+    {% endblock %}

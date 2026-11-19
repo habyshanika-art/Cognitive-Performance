@@ -1,0 +1,430 @@
+{% extends "user/base_dashboard.html" %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block page_title %}Welcome, {{ current_user.first_name }}!{% endblock %}
+
+{% block page_subtitle %}Track your cognitive performance and stay informed{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+{# Continuous monitoring status #}
+
+<div class="dashboard-card monitoring-status-card mb-4">
+
+    <div class="card-body-custom">
+
+        <div class="row align-items-center g-3">
+
+            <div class="col-md-8">
+
+                <h5 class="mb-2">
+
+                    <i class="bi bi-activity me-2"></i>Continuous Monitoring — Cycle {{ monitoring.current_cycle }}
+
+                </h5>
+
+                <p class="text-muted-custom mb-2">{{ monitoring.trend_detail }}</p>
+
+                <div class="progress mb-2" style="height: 10px;">
+
+                    <div class="progress-bar bg-primary" style="width: {{ monitoring.cycle_progress_pct }}%"></div>
+
+                </div>
+
+                <small class="text-muted-custom">
+
+                    {{ monitoring.total_done }} / {{ monitoring.total_required }} assessments this cycle
+
+                    ({{ monitoring.typing_done }} typing, {{ monitoring.reaction_done }} reaction, {{ monitoring.memory_done }} memory, {{ monitoring.concentration_done }} concentration)
+
+                    {% if monitoring.completed_cycles > 0 %}
+
+                    · {{ monitoring.completed_cycles }} cycle{{ 's' if monitoring.completed_cycles != 1 else '' }} completed
+
+                    {% endif %}
+
+                </small>
+
+            </div>
+
+            <div class="col-md-4 text-md-end">
+
+                <span class="trend-badge trend-{{ monitoring.trend }}">
+
+                    {% if monitoring.trend == 'improving' %}
+
+                        <i class="bi bi-arrow-up-circle"></i> Improving
+
+                    {% elif monitoring.trend == 'declining' %}
+
+                        <i class="bi bi-arrow-down-circle"></i> Needs Attention
+
+                    {% else %}
+
+                        <i class="bi bi-dash-circle"></i> Stable / Building Baseline
+
+                    {% endif %}
+
+                </span>
+
+                {% if monitoring.cycle_complete %}
+
+                <div class="mt-2"><span class="badge bg-success">Cycle Complete</span></div>
+
+                {% else %}
+
+                <a href="{{ url_for('user.assessments') }}" class="btn btn-primary btn-sm mt-2">
+
+                    Continue Assessments
+
+                </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+{# Summary stat cards #}
+
+<div class="row g-4 mb-4">
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="stat-card stat-card-blue">
+
+            <div class="stat-icon"><i class="bi bi-clipboard2-check"></i></div>
+
+            <div class="stat-body">
+
+                <span class="stat-value">{{ total_assessments }}</span>
+
+                <span class="stat-label">Assessments Completed</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="stat-card stat-card-green">
+
+            <div class="stat-icon"><i class="bi bi-graph-up-arrow"></i></div>
+
+            <div class="stat-body">
+
+                <span class="stat-value">{{ averages.overall_cognitive_score or '—' }}</span>
+
+                <span class="stat-label">Avg Cognitive Score</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="stat-card stat-card-teal">
+
+            <div class="stat-icon"><i class="bi bi-chat-square-text"></i></div>
+
+            <div class="stat-body">
+
+                <span class="stat-value stat-value-sm">
+
+                    {% if latest_feedback %}
+
+                        {{ latest_feedback.sent_at.strftime('%d %b') }}
+
+                    {% else %}
+
+                        None yet
+
+                    {% endif %}
+
+                </span>
+
+                <span class="stat-label">Latest Feedback</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="stat-card stat-card-gray">
+
+            <div class="stat-icon"><i class="bi bi-bell"></i></div>
+
+            <div class="stat-body">
+
+                <span class="stat-value">{{ notifications|selectattr('is_read', 'equalto', false)|list|length }}</span>
+
+                <span class="stat-label">Unread Notifications</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="row g-4 mb-4">
+
+    {# Cycle trend chart #}
+
+    <div class="col-lg-12">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom">
+
+                <h5><i class="bi bi-graph-up me-2"></i>Longitudinal Performance (Across Cycles)</h5>
+
+            </div>
+
+            <div class="card-body-custom">
+
+                <canvas id="cycleTrendChart" height="120"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="row g-4 mb-4">
+
+    {# Charts #}
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom">
+
+                <h5><i class="bi bi-keyboard me-2"></i>Typing Speed — Cycle {{ monitoring.current_cycle }}</h5>
+
+            </div>
+
+            <div class="card-body-custom">
+
+                <canvas id="typingChart" height="220"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom">
+
+                <h5><i class="bi bi-lightning me-2"></i>Reaction Time — Cycle {{ monitoring.current_cycle }}</h5>
+
+            </div>
+
+            <div class="card-body-custom">
+
+                <canvas id="reactionChart" height="220"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="row g-4">
+
+    {# Latest publications #}
+
+    <div class="col-lg-7">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+
+                <h5><i class="bi bi-journal-medical me-2"></i>Latest Publications</h5>
+
+                <a href="{{ url_for('user.publications') }}" class="btn btn-sm btn-outline-primary">View All</a>
+
+            </div>
+
+            <div class="card-body-custom">
+
+                {% if publications %}
+
+                    {% for pub in publications %}
+
+                    <div class="publication-item">
+
+                        <h6>{{ pub.title }}</h6>
+
+                        <div class="pub-meta">
+
+                            <span><i class="bi bi-person"></i> {{ pub.author.full_name }}</span>
+
+                            <span><i class="bi bi-calendar3"></i>
+
+                                {{ pub.date_published.strftime('%d %b %Y') if pub.date_published else 'N/A' }}
+
+                            </span>
+
+                        </div>
+
+                        <p class="pub-desc">{{ pub.description[:150] }}{% if pub.description and pub.description|length > 150 %}...{% endif %}</p>
+
+                        <a href="{{ url_for('main.publication_detail', pub_id=pub.id) }}" class="btn btn-sm btn-primary">
+
+                            Read More <i class="bi bi-arrow-right ms-1"></i>
+
+                        </a>
+
+                    </div>
+
+                    {% if not loop.last %}<hr>{% endif %}
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <p class="text-muted-custom mb-0">No publications available yet.</p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    {# Notification panel #}
+
+    <div class="col-lg-5">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom">
+
+                <h5><i class="bi bi-bell me-2"></i>Notifications</h5>
+
+            </div>
+
+            <div class="card-body-custom notification-panel">
+
+                {% if notifications %}
+
+                    {% for notif in notifications %}
+
+                    <div class="notification-item {% if not notif.is_read %}unread{% endif %}">
+
+                        <div class="notif-icon notif-{{ notif.notification_type }}">
+
+                            {% if notif.notification_type == 'feedback' %}
+
+                                <i class="bi bi-chat-dots"></i>
+
+                            {% elif notif.notification_type == 'publication' %}
+
+                                <i class="bi bi-journal-text"></i>
+
+                            {% elif notif.notification_type == 'assessment_reminder' %}
+
+                                <i class="bi bi-alarm"></i>
+
+                            {% elif notif.notification_type == 'performance_alert' %}
+
+                                <i class="bi bi-exclamation-triangle"></i>
+
+                            {% elif notif.notification_type == 'cycle_complete' %}
+
+                                <i class="bi bi-check-circle"></i>
+
+                            {% else %}
+
+                                <i class="bi bi-info-circle"></i>
+
+                            {% endif %}
+
+                        </div>
+
+                        <div class="notif-body">
+
+                            <strong>{{ notif.title }}</strong>
+
+                            <p>{{ notif.message }}</p>
+
+                            <small>{{ notif.created_at.strftime('%d %b %Y, %H:%M') }}</small>
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <p class="text-muted-custom mb-0">No notifications.</p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script>
+
+    const typingData = {{ typing_chart|safe }};
+
+    const reactionData = {{ reaction_chart|safe }};
+
+    const cycleData = {{ cycle_chart|safe }};
+
+    initDashboardCharts(typingData, reactionData);
+
+    initCycleTrendChart(cycleData);
+
+</script>
+
+{% endblock %}
+

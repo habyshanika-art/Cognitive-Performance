@@ -1,0 +1,366 @@
+{% extends "researcher/base_researcher.html" %}
+
+{% block title %}{{ user.display_id }} — Results{% endblock %}
+
+{% block page_title %}{{ user.display_id }}{% endblock %}
+
+{% block page_subtitle %}Cycle {{ current_cycle }} — anonymised participant · not a diagnosis{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('researcher.participant_export_csv', user_id=user.id) }}" class="btn btn-outline-success btn-sm me-1">CSV</a>
+<a href="{{ url_for('researcher.participant_export_pdf', user_id=user.id) }}" class="btn btn-outline-danger btn-sm me-1" target="_blank">PDF report</a>
+<a href="{{ url_for('researcher.participants_list') }}" class="btn btn-outline-secondary btn-sm">Back</a>
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+<div class="dashboard-card monitoring-status-card mb-4">
+
+    <div class="card-body-custom">
+
+        <div class="row align-items-center">
+
+            <div class="col-md-8">
+
+                <strong>Monitoring Status</strong>
+
+                <p class="text-muted-custom mb-0 small">{{ monitoring.trend_detail }}</p>
+
+            </div>
+
+            <div class="col-md-4 text-md-end">
+
+                <span class="trend-badge trend-{{ monitoring.trend }}">{{ monitoring.trend|capitalize }}</span>
+
+                <div class="small text-muted mt-1">{{ monitoring.completed_cycles }} cycle(s) completed</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-4">
+
+        <div class="stat-card stat-card-blue">
+
+            <div class="stat-icon"><i class="bi bi-keyboard"></i></div>
+
+            <div class="stat-body">
+
+                <span class="stat-value">{{ averages.avg_typing_speed or '—' }}</span>
+
+                <span class="stat-label">Avg Typing Speed (WPM)</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="stat-card stat-card-green">
+
+            <div class="stat-icon"><i class="bi bi-lightning"></i></div>
+
+            <div class="stat-body">
+
+                <span class="stat-value">{{ averages.avg_reaction_time|int if averages.avg_reaction_time else '—' }}</span>
+
+                <span class="stat-label">Avg Reaction Time (ms)</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="stat-card stat-card-teal">
+
+            <div class="stat-icon"><i class="bi bi-award"></i></div>
+
+            <div class="stat-body">
+
+                <span class="stat-value">{{ averages.overall_cognitive_score or '—' }}</span>
+
+                <span class="stat-label">Overall Cognitive Score</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="row g-4 mb-4">
+
+    <div class="col-lg-12">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom"><h5><i class="bi bi-graph-up me-2"></i>Longitudinal Performance</h5></div>
+
+            <div class="card-body-custom"><canvas id="cycleTrendChart" height="120"></canvas></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="row g-4 mb-4">
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom"><h5><i class="bi bi-keyboard me-2"></i>Typing — Cycle {{ current_cycle }}</h5></div>
+
+            <div class="card-body-custom"><canvas id="typingChart" height="200"></canvas></div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom"><h5><i class="bi bi-lightning me-2"></i>Reaction — Cycle {{ current_cycle }}</h5></div>
+
+            <div class="card-body-custom"><canvas id="reactionChart" height="200"></canvas></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="row g-4 mb-4">
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom"><h5>Cycle History</h5></div>
+
+            <div class="card-body-custom p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table admin-table mb-0">
+
+                        <thead><tr><th>Cycle</th><th>WPM</th><th>Reaction (ms)</th><th>Score</th><th>Date</th></tr></thead>
+
+                        <tbody>
+
+                            {% for c in cycle_history %}
+
+                            <tr>
+
+                                <td>{{ c.cycle_number }}</td>
+
+                                <td>{{ c.avg_typing_speed or '—' }}</td>
+
+                                <td>{{ c.avg_response_time|int if c.avg_response_time else '—' }}</td>
+
+                                <td>{{ c.overall_cognitive_score or '—' }}</td>
+
+                                <td class="small">{{ c.calculated_at.strftime('%d %b %Y') if c.calculated_at else '—' }}</td>
+
+                            </tr>
+
+                            {% else %}
+
+                            <tr><td colspan="5" class="text-center text-muted py-3">No completed cycles yet.</td></tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom"><h5>Performance Alerts</h5></div>
+
+            <div class="card-body-custom">
+
+                {% for alert in user_alerts %}
+
+                <div class="{% if not loop.last %}mb-3 pb-3 border-bottom{% endif %}">
+
+                    <span class="severity-{{ alert.severity }} small">{{ alert.severity|capitalize }}</span>
+
+                    <strong class="ms-2">{{ alert.alert_type|replace('_', ' ')|title }}</strong>
+
+                    <p class="small text-muted mb-1 mt-1">{{ alert.message }}</p>
+
+                    <small class="text-muted">{{ alert.created_at.strftime('%d %b %Y') if alert.created_at else '' }}</small>
+
+                </div>
+
+                {% else %}
+
+                <p class="text-muted-custom mb-0">No alerts for this participant.</p>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="row g-4">
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom"><h5>Typing Attempts (Current Cycle)</h5></div>
+
+            <div class="card-body-custom p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table admin-table mb-0">
+
+                        <thead><tr><th>#</th><th>WPM</th><th>Error Rate</th><th>Date</th></tr></thead>
+
+                        <tbody>
+
+                            {% for m in typing_metrics %}
+
+                            <tr>
+
+                                <td>{{ m.attempt_number }}</td>
+
+                                <td>{{ m.typing_speed_wpm or '—' }}</td>
+
+                                <td>{{ m.error_rate or '—' }}</td>
+
+                                <td class="small">{{ m.calculated_at.strftime('%d %b %Y') if m.calculated_at else '—' }}</td>
+
+                            </tr>
+
+                            {% else %}
+
+                            <tr><td colspan="4" class="text-center text-muted py-3">No typing data.</td></tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom"><h5>Reaction Attempts (Current Cycle)</h5></div>
+
+            <div class="card-body-custom p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table admin-table mb-0">
+
+                        <thead><tr><th>#</th><th>Time (ms)</th><th>Date</th></tr></thead>
+
+                        <tbody>
+
+                            {% for m in reaction_metrics %}
+
+                            <tr>
+
+                                <td>{{ m.attempt_number }}</td>
+
+                                <td>{{ m.response_time_ms or '—' }}</td>
+
+                                <td class="small">{{ m.calculated_at.strftime('%d %b %Y') if m.calculated_at else '—' }}</td>
+
+                            </tr>
+
+                            {% else %}
+
+                            <tr><td colspan="3" class="text-center text-muted py-3">No reaction data.</td></tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script>
+
+    const typingData = {{ typing_chart|safe }};
+
+    const reactionData = {{ reaction_chart|safe }};
+
+    const cycleData = {{ cycle_chart|safe }};
+
+    initDashboardCharts(typingData, reactionData);
+
+    initCycleTrendChart(cycleData);
+
+</script>
+
+{% endblock %}
+

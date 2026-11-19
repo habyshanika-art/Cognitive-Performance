@@ -1,0 +1,21 @@
+{% extends "user/base_dashboard.html" %}
+{% block title %}Withdraw & Delete Data{% endblock %}
+{% block page_title %}Withdraw Consent{% endblock %}
+{% block page_subtitle %}Delete your assessment data permanently{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-card">
+    <div class="card-body-custom">
+        <div class="alert alert-danger">
+            This permanently deletes your assessment attempts, metrics, alerts, feedback, and email inbox messages.
+            Your login may remain deactivated with a withdrawn flag for audit integrity.
+        </div>
+        <p>Researchers will no longer see your performance data. Type <strong>DELETE</strong> to confirm.</p>
+        <form method="POST">
+            <input type="text" name="confirm_text" class="form-control mb-3" placeholder="Type DELETE" required autocomplete="off">
+            <button type="submit" class="btn btn-danger">Withdraw & Delete My Data</button>
+            <a href="{{ url_for('user.settings') }}" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

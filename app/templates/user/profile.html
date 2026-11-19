@@ -1,0 +1,137 @@
+{% extends "user/base_dashboard.html" %}
+{% block title %}Profile{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+{% block page_subtitle %}View and update your personal information{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('user.emails') }}" class="btn btn-outline-primary btn-sm position-relative me-2" title="Email inbox">
+    <i class="bi bi-envelope-fill"></i> Email
+    {% if unread_emails %}
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ unread_emails }}</span>
+    {% endif %}
+</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="alert alert-info small">
+    <i class="bi bi-info-circle me-1"></i>
+    Research ID for researchers: <strong>{{ current_user.display_id }}</strong>
+    · This system is <strong>not a medical diagnosis</strong>.
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="dashboard-card text-center">
+            <div class="card-body-custom py-4">
+                {% if current_user.profile_picture %}
+                <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_picture) }}"
+                     alt="Profile" class="profile-avatar-lg mb-3">
+                {% else %}
+                <div class="profile-avatar-lg-placeholder mb-3">
+                    {{ current_user.first_name[0] }}{{ current_user.last_name[0] if current_user.last_name else '' }}
+                </div>
+                {% endif %}
+                <h5>{{ current_user.full_name }}</h5>
+                <p class="text-muted-custom">@{{ current_user.username }}</p>
+                <p class="mb-1"><i class="bi bi-envelope me-1"></i>{{ current_user.email }}</p>
+                <span class="badge bg-primary">{{ current_user.role_name|title }}</span>
+                <hr>
+                <a href="{{ url_for('user.emails') }}" class="btn btn-primary w-100 mb-2">
+                    <i class="bi bi-envelope me-1"></i> Open Email Inbox
+                    {% if unread_emails %}<span class="badge bg-light text-dark">{{ unread_emails }}</span>{% endif %}
+                </a>
+                <form method="POST" class="mb-2">
+                    <input type="hidden" name="action" value="request_password_code">
+                    <button type="submit" class="btn btn-outline-warning w-100">
+                        <i class="bi bi-key me-1"></i> Email me a password code
+                    </button>
+                </form>
+                <small class="text-muted-custom">Member since {{ current_user.created_at.strftime('%B %Y') }}</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="dashboard-card mb-4">
+            <div class="card-header-custom">
+                <h5><i class="bi bi-pencil me-2"></i>Edit Profile</h5>
+            </div>
+            <div class="card-body-custom">
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="update_profile">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="full_name" class="form-control"
+                                   value="{{ current_user.full_name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" value="{{ current_user.username }}" disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email <span class="text-muted">(notifications go here)</span></label>
+                            <input type="email" name="email" class="form-control" value="{{ current_user.email }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="date" name="date_of_birth" class="form-control"
+                                   value="{{ current_user.date_of_birth }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Gender</label>
+                            <select name="gender" class="form-select">
+                                <option value="">Select...</option>
+                                <option value="Male" {% if current_user.gender == 'Male' %}selected{% endif %}>Male</option>
+                                <option value="Female" {% if current_user.gender == 'Female' %}selected{% endif %}>Female</option>
+                                <option value="Other" {% if current_user.gender == 'Other' %}selected{% endif %}>Other</option>
+                                <option value="Prefer not to say" {% if current_user.gender == 'Prefer not to say' %}selected{% endif %}>Prefer not to say</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" name="phone" class="form-control"
+                                   value="{{ current_user.phone or '' }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Profile Picture</label>
+                            <input type="file" name="profile_picture" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">
+                        <i class="bi bi-check-lg me-1"></i> Save Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-header-custom">
+                <h5><i class="bi bi-shield-lock me-2"></i>Change Password</h5>
+            </div>
+            <div class="card-body-custom">
+                <form method="POST">
+                    <input type="hidden" name="action" value="change_password">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" name="current_password" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">New Password</label>
+                            <input type="password" name="new_password" class="form-control" required minlength="8">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" name="confirm_password" class="form-control" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success mt-3">
+                        <i class="bi bi-key me-1"></i> Update Password
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Cognitive Metrics{% endblock %}
+{% block page_title %}Cognitive Metrics Overview{% endblock %}
+{% block page_subtitle %}All participant assessment data{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card stat-card-blue">
+            <div class="stat-icon"><i class="bi bi-clipboard2-check"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ total_completed }}</span>
+                <span class="stat-label">Total Assessments</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-card-green">
+            <div class="stat-icon"><i class="bi bi-keyboard"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ avg_typing or '—' }}</span>
+                <span class="stat-label">Avg Typing WPM</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-card-teal">
+            <div class="stat-icon"><i class="bi bi-lightning"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ avg_reaction or '—' }}</span>
+                <span class="stat-label">Avg Reaction (ms)</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label small text-muted">Search participant</label>
+            <input type="text" name="q" class="form-control form-control-sm" placeholder="Name, email..." value="{{ search }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary btn-sm w-100">Search</button>
+        </div>
+    </form>
+</div>
+
+<div class="dashboard-card">
+    <div class="card-body-custom p-0">
+        <div class="table-responsive">
+            <table class="table admin-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Participant</th>
+                        <th>Typing</th>
+                        <th>Reaction</th>
+                        <th>Avg WPM</th>
+                        <th>Avg Reaction</th>
+                        <th>Cognitive Score</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in user_metrics %}
+                    <tr>
+                        <td>
+                            <strong>{{ m.user.full_name }}</strong>
+                            <div class="small text-muted">{{ m.user.email }}</div>
+                        </td>
+                        <td>{{ m.typing_attempts }}/5</td>
+                        <td>{{ m.reaction_attempts }}/5</td>
+                        <td>{{ m.averages.avg_typing_speed or '—' }}</td>
+                        <td>{{ m.averages.avg_reaction_time|int if m.averages.avg_reaction_time else '—' }}</td>
+                        <td><strong>{{ m.averages.overall_cognitive_score or '—' }}</strong></td>
+                        <td>
+                            <a href="{{ url_for('admin.users_view', user_id=m.user.id) }}" class="btn btn-sm btn-outline-primary">Details</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" class="text-center text-muted py-4">No participants found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if total_pages > 1 %}
+<div class="pagination-bar">
+    <span class="text-muted small">Page {{ page }} of {{ total_pages }}</span>
+    <div>
+        {% if page > 1 %}<a href="?page={{ page - 1 }}&q={{ search }}" class="btn btn-sm btn-outline-secondary">Previous</a>{% endif %}
+        {% if page < total_pages %}<a href="?page={{ page + 1 }}&q={{ search }}" class="btn btn-sm btn-outline-secondary">Next</a>{% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

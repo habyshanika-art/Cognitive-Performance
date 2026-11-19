@@ -1,0 +1,52 @@
+{% extends "researcher/base_researcher.html" %}
+{% block title %}{{ publication.title if publication else 'New Article' }}{% endblock %}
+{% block page_title %}{{ 'Edit Article' if publication else 'New Research Article' }}{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('researcher.publications_list') }}" class="btn btn-outline-secondary btn-sm">Back</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-card">
+    <div class="card-body-custom">
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <input type="text" name="title" class="form-control" required
+                       value="{{ publication.title if publication else '' }}">
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        {% for s in ['draft', 'published', 'hidden'] %}
+                        <option value="{{ s }}" {% if publication and publication.status == s %}selected{% elif not publication and s == 'draft' %}selected{% endif %}>
+                            {{ s|capitalize }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">Set to "Published" to make visible to participants.</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Publication Date</label>
+                    <input type="date" name="date_published" class="form-control"
+                           value="{{ publication.date_published if publication and publication.date_published else '' }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Summary / Abstract</label>
+                <textarea name="description" class="form-control" rows="3"
+                          placeholder="Brief summary shown in publication listings...">{{ publication.description if publication else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Full Article Content</label>
+                <textarea name="content" class="form-control" rows="12"
+                          placeholder="Write your research findings here...">{{ publication.content if publication else '' }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                {{ 'Save Changes' if publication else 'Create Article' }}
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

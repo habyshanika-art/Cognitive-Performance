@@ -1,0 +1,87 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Researchers{% endblock %}
+{% block page_title %}Manage Researchers{% endblock %}
+{% block page_subtitle %}{{ total }} researcher account{{ 's' if total != 1 else '' }}{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('admin.researchers_create') }}" class="btn btn-primary btn-sm">
+    <i class="bi bi-person-plus me-1"></i> Add Researcher
+</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label small text-muted">Search</label>
+            <input type="text" name="q" class="form-control form-control-sm" placeholder="Name, email..." value="{{ search }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted">Status</label>
+            <select name="status" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                <option value="blocked" {% if status_filter == 'blocked' %}selected{% endif %}>Blocked</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="dashboard-card">
+    <div class="card-body-custom p-0">
+        <div class="table-responsive">
+            <table class="table admin-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Researcher</th>
+                        <th>Email</th>
+                        <th>Publications</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in researchers %}
+                    <tr>
+                        <td>
+                            <strong>{{ r.full_name }}</strong>
+                            <div class="small text-muted">@{{ r.username }}</div>
+                        </td>
+                        <td>{{ r.email }}</td>
+                        <td>{{ pub_counts.get(r.id, 0) }}</td>
+                        <td>
+                            {% if r.is_blocked %}
+                            <span class="status-dot status-dot-blocked"></span>Blocked
+                            {% else %}
+                            <span class="status-dot status-dot-active"></span>Active
+                            {% endif %}
+                        </td>
+                        <td class="small">{{ r.created_at.strftime('%d %b %Y') if r.created_at else '—' }}</td>
+                        <td class="text-end">
+                            <a href="{{ url_for('admin.users_view', user_id=r.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                            <a href="{{ url_for('admin.users_edit', user_id=r.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="text-center text-muted py-4">No researchers found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if total_pages > 1 %}
+<div class="pagination-bar">
+    <span class="text-muted small">Page {{ page }} of {{ total_pages }}</span>
+    <div>
+        {% if page > 1 %}<a href="?page={{ page - 1 }}&q={{ search }}&status={{ status_filter }}" class="btn btn-sm btn-outline-secondary">Previous</a>{% endif %}
+        {% if page < total_pages %}<a href="?page={{ page + 1 }}&q={{ search }}&status={{ status_filter }}" class="btn btn-sm btn-outline-secondary">Next</a>{% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

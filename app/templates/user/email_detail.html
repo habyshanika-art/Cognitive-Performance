@@ -1,0 +1,28 @@
+{% extends "user/base_dashboard.html" %}
+{% block title %}{{ message.subject }}{% endblock %}
+{% block page_title %}Email{% endblock %}
+{% block page_subtitle %}{{ message.subject }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-card">
+    <div class="card-header-custom d-flex justify-content-between">
+        <div>
+            <h5 class="mb-1">{{ message.subject }}</h5>
+            <small class="text-muted">
+                {{ message.created_at.strftime('%d %b %Y %H:%M') if message.created_at else '' }}
+                · {{ message.category }} · {{ message.sent_via }}
+            </small>
+        </div>
+        <a href="{{ url_for('user.emails') }}" class="btn btn-sm btn-outline-secondary">Inbox</a>
+    </div>
+    <div class="card-body-custom">
+        {% if message.code %}
+        <div class="alert alert-warning">
+            <strong>Code:</strong>
+            <span class="fs-4 font-monospace">{{ message.code }}</span>
+        </div>
+        {% endif %}
+        <pre class="mb-0" style="white-space:pre-wrap;font-family:inherit;">{{ message.body }}</pre>
+    </div>
+</div>
+{% endblock %}

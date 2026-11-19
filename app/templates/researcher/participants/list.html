@@ -1,0 +1,72 @@
+{% extends "researcher/base_researcher.html" %}
+{% block title %}Participants{% endblock %}
+{% block page_title %}Participants (anonymised){% endblock %}
+{% block page_subtitle %}{{ total }} participant{{ 's' if total != 1 else '' }} — names and emails hidden{% endblock %}
+
+{% block dashboard_content %}
+<div class="alert alert-info small">
+    Participants are shown by anonymised research ID only. This system does not provide medical diagnoses.
+</div>
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label small text-muted">Search by anonymised ID</label>
+            <input type="text" name="q" class="form-control form-control-sm" placeholder="e.g. P-A1B2C3" value="{{ search }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary btn-sm w-100">Search</button>
+        </div>
+    </form>
+</div>
+
+<div class="dashboard-card">
+    <div class="card-body-custom p-0">
+        <div class="table-responsive">
+            <table class="table admin-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Participant ID</th>
+                        <th>Typing</th>
+                        <th>Reaction</th>
+                        <th>Memory</th>
+                        <th>Conc.</th>
+                        <th>Avg WPM</th>
+                        <th>Avg Reaction</th>
+                        <th>Score</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in summaries %}
+                    <tr>
+                        <td><strong>{{ s.user.display_id }}</strong></td>
+                        <td>{{ s.typing_attempts }}/5</td>
+                        <td>{{ s.reaction_attempts }}/5</td>
+                        <td>{{ s.memory_attempts }}/5</td>
+                        <td>{{ s.concentration_attempts }}/5</td>
+                        <td>{{ s.averages.avg_typing_speed or '—' }}</td>
+                        <td>{{ s.averages.avg_reaction_time|int if s.averages.avg_reaction_time else '—' }} ms</td>
+                        <td><strong>{{ s.averages.overall_cognitive_score or '—' }}</strong></td>
+                        <td>
+                            <a href="{{ url_for('researcher.participant_results', user_id=s.user.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="9" class="text-center text-muted py-4">No participants found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if total_pages > 1 %}
+<div class="pagination-bar">
+    <span class="text-muted small">Page {{ page }} of {{ total_pages }}</span>
+    <div>
+        {% if page > 1 %}<a href="?page={{ page - 1 }}&q={{ search }}" class="btn btn-sm btn-outline-secondary">Previous</a>{% endif %}
+        {% if page < total_pages %}<a href="?page={{ page + 1 }}&q={{ search }}" class="btn btn-sm btn-outline-secondary">Next</a>{% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

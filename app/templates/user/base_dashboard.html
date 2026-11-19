@@ -1,0 +1,131 @@
+{# User Dashboard Base Layout — sidebar navigation for authenticated users #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %} — CogMonitor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/neon-gaming.css') }}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="dashboard-body">
+    {# Mobile sidebar toggle #}
+    <button class="sidebar-toggle d-lg-none" id="sidebarToggle" aria-label="Toggle menu">
+        <i class="bi bi-list"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    {# Sidebar navigation #}
+    <aside class="dashboard-sidebar" id="dashboardSidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i class="bi bi-heart-pulse"></i></div>
+            <div>
+                <span class="brand-name">CogMonitor</span>
+                <small class="brand-tagline">Cognitive Monitoring</small>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('user.dashboard') }}"
+               class="sidebar-link {% if request.endpoint == 'user.dashboard' %}active{% endif %}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="{{ url_for('user.assessments') }}"
+               class="sidebar-link {% if request.endpoint in ['user.assessments', 'user.typing_test', 'user.reaction_test', 'user.memory_test', 'user.concentration_test'] %}active{% endif %}">
+                <i class="bi bi-clipboard2-pulse"></i> Assessments
+            </a>
+            <a href="{{ url_for('user.results') }}"
+               class="sidebar-link {% if request.endpoint == 'user.results' %}active{% endif %}">
+                <i class="bi bi-bar-chart-line"></i> My Results
+            </a>
+            <a href="{{ url_for('user.request_feedback') }}"
+               class="sidebar-link {% if request.endpoint == 'user.request_feedback' %}active{% endif %}">
+                <i class="bi bi-chat-dots"></i> Request Feedback
+            </a>
+            <a href="{{ url_for('user.publications') }}"
+               class="sidebar-link {% if request.endpoint == 'user.publications' %}active{% endif %}">
+                <i class="bi bi-journal-medical"></i> Research Publications
+            </a>
+            <a href="{{ url_for('user.profile') }}"
+               class="sidebar-link {% if request.endpoint in ['user.profile', 'user.emails', 'user.email_detail'] %}active{% endif %}">
+                <i class="bi bi-person-circle"></i> Profile
+            </a>
+            <a href="{{ url_for('user.emails') }}"
+               class="sidebar-link {% if request.endpoint in ['user.emails', 'user.email_detail'] %}active{% endif %}">
+                <i class="bi bi-envelope"></i> Email
+                {% if current_user.unread_email_count() %}
+                <span class="badge bg-danger ms-auto">{{ current_user.unread_email_count() }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('user.settings') }}"
+               class="sidebar-link {% if request.endpoint == 'user.settings' %}active{% endif %}">
+                <i class="bi bi-gear"></i> Settings
+            </a>
+            <hr class="sidebar-divider">
+            <a href="{{ url_for('auth.logout') }}" class="sidebar-link text-danger">
+                <i class="bi bi-box-arrow-left"></i> Logout
+            </a>
+        </nav>
+    </aside>
+
+    {# Main content area #}
+    <main class="dashboard-main">
+        {# Flash messages #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="dashboard-flash">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        <header class="dashboard-header">
+            <div>
+                <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                <p class="page-subtitle">{% block page_subtitle %}{% endblock %}</p>
+            </div>
+            <div class="header-actions">
+                {% block header_actions %}{% endblock %}
+                <a href="{{ url_for('user.emails') }}" class="btn btn-sm btn-outline-primary me-2" title="Email inbox">
+                    <i class="bi bi-envelope-fill"></i>
+                    {% if current_user.is_authenticated and current_user.unread_email_count() %}
+                    <span class="badge bg-danger">{{ current_user.unread_email_count() }}</span>
+                    {% endif %}
+                </a>
+                <a href="{{ url_for('user.profile') }}" class="header-user" title="View profile">
+                    {% if current_user.profile_picture %}
+                    <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_picture) }}"
+                         alt="Profile" class="header-user-avatar">
+                    {% else %}
+                    <div class="header-user-avatar-placeholder">
+                        {{ current_user.first_name[0] }}{{ current_user.last_name[0] if current_user.last_name else '' }}
+                    </div>
+                    {% endif %}
+                    <div class="header-user-info">
+                        <strong>{{ current_user.full_name }}</strong>
+                        <small>@{{ current_user.username }}</small>
+                    </div>
+                </a>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            {% block dashboard_content %}{% endblock %}
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

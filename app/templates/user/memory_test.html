@@ -1,0 +1,54 @@
+{% extends "user/base_dashboard.html" %}
+{% block title %}Memory Test{% endblock %}
+{% block page_title %}Memory Test{% endblock %}
+{% block page_subtitle %}
+    {% if is_practice %}Practice attempt (not counted){% else %}Attempt {{ attempt_number }} of 5{% endif %}
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-card assessment-test-card">
+    <div class="card-body-custom">
+        <div id="memoryTestArea">
+            <div class="test-instructions mb-4">
+                <p>A digit sequence will flash briefly. Memorise it, then type it back. Sequences get longer each round (5 rounds).</p>
+                <p class="small text-muted-custom mb-0">This is the <strong>Memory</strong> test only (digit recall). Concentration is a separate assessment. Not a clinical test.</p>
+            </div>
+
+            <div id="memoryDisplay" class="passage-box mb-3 text-center" style="font-size:1.75rem; letter-spacing:0.2em; min-height:4rem;">
+                Click Start to begin
+            </div>
+
+            <input id="memoryInput" class="form-control form-control-lg text-center mb-3"
+                   placeholder="Type the digits here" disabled autocomplete="off" inputmode="numeric">
+
+            <div class="test-stats row g-3">
+                <div class="col-12 text-center">
+                    <div class="test-stat"><span id="memoryRound">0 / 5</span></div>
+                    <small>Round</small>
+                </div>
+            </div>
+
+            <div class="test-actions mt-4 text-center">
+                <button id="startMemoryBtn" class="btn btn-warning btn-lg">
+                    <i class="bi bi-play-fill me-1"></i> Start
+                </button>
+                <button id="submitMemoryBtn" class="btn btn-success btn-lg d-none" type="button" disabled>
+                    <i class="bi bi-check-lg me-1"></i> Submit Answer
+                </button>
+            </div>
+
+            <div id="memoryResult" class="alert alert-success mt-3 d-none"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const SUBMIT_URL = "{{ url_for('user.submit_assessment') }}";
+    const REDIRECT_URL = "{{ url_for('user.results') }}";
+    const IS_PRACTICE = {{ 'true' if is_practice else 'false' }};
+</script>
+<script src="{{ url_for('static', filename='js/assessments.js') }}"></script>
+<script>initMemoryTest();</script>
+{% endblock %}

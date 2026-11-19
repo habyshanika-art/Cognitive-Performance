@@ -1,0 +1,36 @@
+{% extends "user/base_dashboard.html" %}
+{% block title %}Research Publications{% endblock %}
+{% block page_title %}Research Publications{% endblock %}
+{% block page_subtitle %}Latest findings from cognitive performance research{% endblock %}
+
+{% block dashboard_content %}
+{% if publications %}
+<div class="row g-4">
+    {% for pub in publications %}
+    <div class="col-md-6 col-lg-4">
+        <div class="publication-card">
+            <div class="pub-card-icon"><i class="bi bi-journal-medical"></i></div>
+            <h5>{{ pub.title }}</h5>
+            <div class="pub-meta">
+                <span><i class="bi bi-person"></i> {{ pub.author.full_name }}</span>
+                <span><i class="bi bi-calendar3"></i>
+                    {{ pub.date_published.strftime('%d %b %Y') if pub.date_published else 'N/A' }}
+                </span>
+            </div>
+            <p>{{ pub.description[:120] }}{% if pub.description and pub.description|length > 120 %}...{% endif %}</p>
+            <a href="{{ url_for('main.publication_detail', pub_id=pub.id) }}" class="btn btn-sm btn-outline-primary">
+                Read More <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="dashboard-card">
+    <div class="card-body-custom text-center py-5">
+        <i class="bi bi-journal-x display-4 text-muted-custom"></i>
+        <p class="text-muted-custom mt-3">No publications available yet.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

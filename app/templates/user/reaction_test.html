@@ -1,0 +1,49 @@
+{% extends "user/base_dashboard.html" %}
+{% block title %}Reaction Time Test{% endblock %}
+{% block page_title %}Reaction Time Test{% endblock %}
+{% block page_subtitle %}{% if is_practice %}Practice (not counted){% else %}Attempt {{ attempt_number }} of 5{% endif %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-card assessment-test-card">
+    <div class="card-body-custom">
+        <div id="reactionTestArea">
+            <div class="test-instructions mb-4">
+                <p>Click the box when it turns <strong class="text-success">green</strong>. Wait for green — clicking too early counts as a false start.</p>
+            </div>
+
+            <div id="reactionBox" class="reaction-box">
+                <span id="reactionMessage">Click Start to begin</span>
+            </div>
+
+            <div class="test-stats row g-3 mt-4">
+                <div class="col-6 text-center">
+                    <div class="test-stat"><span id="reactionTimeDisplay">—</span> ms</div>
+                    <small>Reaction Time</small>
+                </div>
+                <div class="col-6 text-center">
+                    <div class="test-stat"><span id="trialCount">0</span> / 3</div>
+                    <small>Trials (avg used)</small>
+                </div>
+            </div>
+
+            <div class="test-actions mt-4 text-center">
+                <button id="startReactionBtn" class="btn btn-success btn-lg">
+                    <i class="bi bi-play-fill me-1"></i> Start
+                </button>
+            </div>
+
+            <div id="reactionResult" class="alert alert-success mt-3 d-none"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const SUBMIT_URL = "{{ url_for('user.submit_assessment') }}";
+    const REDIRECT_URL = "{{ url_for('user.results') }}";
+    const IS_PRACTICE = {{ 'true' if is_practice else 'false' }};
+</script>
+<script src="{{ url_for('static', filename='js/assessments.js') }}"></script>
+<script>initReactionTest();</script>
+{% endblock %}

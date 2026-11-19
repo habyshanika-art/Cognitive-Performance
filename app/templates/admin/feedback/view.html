@@ -1,0 +1,71 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Feedback #{{ fb_req.id }}{% endblock %}
+{% block page_title %}Feedback Request #{{ fb_req.id }}{% endblock %}
+{% block page_subtitle %}From {{ fb_req.user.full_name if fb_req.user else 'Unknown' }}{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('admin.feedback_list') }}" class="btn btn-outline-secondary btn-sm">Back</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="dashboard-card">
+            <div class="card-header-custom"><h5>User Message</h5></div>
+            <div class="card-body-custom">
+                <p class="mb-0">{{ fb_req.user_message or 'No message provided.' }}</p>
+                <hr>
+                <div class="small text-muted">
+                    Requested: {{ fb_req.requested_at.strftime('%d %b %Y at %H:%M') if fb_req.requested_at else '—' }}
+                    {% if fb_req.responded_at %}
+                    · Responded: {{ fb_req.responded_at.strftime('%d %b %Y at %H:%M') }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if fb_req.user %}
+        <div class="dashboard-card mt-4">
+            <div class="card-header-custom"><h5>Requesting User</h5></div>
+            <div class="card-body-custom">
+                <div class="detail-grid">
+                    <div class="detail-item"><label>Name</label><span>{{ fb_req.user.full_name }}</span></div>
+                    <div class="detail-item"><label>Email</label><span>{{ fb_req.user.email }}</span></div>
+                </div>
+                <a href="{{ url_for('admin.users_view', user_id=fb_req.user.id) }}" class="btn btn-sm btn-outline-primary mt-3">View User Profile</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-5">
+        <div class="dashboard-card">
+            <div class="card-header-custom"><h5>Manage Request</h5></div>
+            <div class="card-body-custom">
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            {% for s in ['pending', 'accepted', 'ignored', 'completed'] %}
+                            <option value="{{ s }}" {% if fb_req.status == s %}selected{% endif %}>{{ s|capitalize }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assign Researcher</label>
+                        <select name="researcher_id" class="form-select">
+                            <option value="">— Unassigned —</option>
+                            {% for r in researchers %}
+                            <option value="{{ r.id }}" {% if fb_req.researcher_id == r.id %}selected{% endif %}>
+                                {{ r.full_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Update Request</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

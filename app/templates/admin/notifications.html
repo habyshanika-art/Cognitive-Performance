@@ -1,0 +1,57 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Broadcast Notification{% endblock %}
+{% block page_title %}Broadcast Notification{% endblock %}
+{% block page_subtitle %}Send a system notification to users{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="dashboard-card">
+            <div class="card-header-custom"><h5><i class="bi bi-bell me-2"></i>Compose Notification</h5></div>
+            <div class="card-body-custom">
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" name="title" class="form-control" required placeholder="Notification title">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message</label>
+                        <textarea name="message" class="form-control" rows="4" required placeholder="Notification message..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Link URL (optional)</label>
+                        <input type="text" name="link_url" class="form-control" placeholder="/user/assessments">
+                        <div class="form-text">Relative path users will be directed to when clicking the notification.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Send To</label>
+                        <select name="target_role" class="form-select">
+                            <option value="all">All users (every role)</option>
+                            {% for r in roles %}
+                            <option value="{{ r.name }}">{{ r.name|capitalize }} only</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" onclick="return confirm('Send this notification to the selected audience?');">
+                        <i class="bi bi-send me-1"></i> Send Notification
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="dashboard-card">
+            <div class="card-header-custom"><h5>Guidelines</h5></div>
+            <div class="card-body-custom">
+                <ul class="small text-muted mb-0">
+                    <li class="mb-2">Notifications appear on the user dashboard bell panel.</li>
+                    <li class="mb-2">Use clear, concise titles so users know what the message is about.</li>
+                    <li class="mb-2">Blocked accounts will not receive notifications.</li>
+                    <li>All broadcasts are recorded in the audit log.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends "researcher/base_researcher.html" %}
+{% block title %}Researcher Dashboard{% endblock %}
+{% block page_title %}Welcome, {{ current_user.first_name }}!{% endblock %}
+{% block page_subtitle %}Review participant data and publish research findings{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-green">
+            <div class="stat-icon"><i class="bi bi-people"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ participant_count }}</span>
+                <span class="stat-label">Participants</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-orange">
+            <div class="stat-icon"><i class="bi bi-chat-dots"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ pending_count }}</span>
+                <span class="stat-label">Pending Feedback</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-teal">
+            <div class="stat-icon"><i class="bi bi-reply"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ my_feedback_count }}</span>
+                <span class="stat-label">Responses Sent</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-blue">
+            <div class="stat-icon"><i class="bi bi-journal-medical"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ published_count }}</span>
+                <span class="stat-label">Published Articles</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="dashboard-card">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-chat-dots me-2"></i>Pending Feedback Requests</h5>
+                <a href="{{ url_for('researcher.feedback_list') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body-custom">
+                {% if pending_requests %}
+                    {% for req in pending_requests %}
+                    <div class="feedback-request-item {% if not loop.last %}mb-3 pb-3 border-bottom{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ req.user.display_id if req.user else 'Unknown' }}</strong>
+                                <small class="text-muted ms-2">{{ req.requested_at.strftime('%d %b %Y') if req.requested_at else '' }}</small>
+                            </div>
+                            <a href="{{ url_for('researcher.feedback_respond', req_id=req.id) }}" class="btn btn-sm btn-primary">Respond</a>
+                        </div>
+                        <p class="mt-2 mb-0 text-muted">{{ (req.user_message or '')[:120] }}{% if req.user_message and req.user_message|length > 120 %}...{% endif %}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted-custom mb-0">No pending feedback requests.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="dashboard-card mt-4">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-people me-2"></i>Recent Participants</h5>
+                <a href="{{ url_for('researcher.participants_list') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body-custom">
+                {% for u in recent_participants %}
+                <div class="d-flex justify-content-between align-items-center {% if not loop.last %}mb-3 pb-3 border-bottom{% endif %}">
+                    <div>
+                        <strong>{{ u.display_id }}</strong>
+                        <div class="small text-muted">{{ u.email }}</div>
+                    </div>
+                    <a href="{{ url_for('researcher.participant_results', user_id=u.id) }}" class="btn btn-sm btn-outline-secondary">View Results</a>
+                </div>
+                {% else %}
+                <p class="text-muted-custom mb-0">No participants registered yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="dashboard-card">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-exclamation-triangle me-2"></i>Performance Alerts</h5>
+                <a href="{{ url_for('researcher.alerts_list') }}" class="btn btn-sm btn-outline-warning">View All</a>
+            </div>
+            <div class="card-body-custom">
+                {% if recent_alerts %}
+                    {% for alert in recent_alerts %}
+                    <div class="{% if not loop.last %}mb-3 pb-3 border-bottom{% endif %} {% if not alert.is_read %}table-warning{% endif %}">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ alert.user.display_id if alert.user else 'Unknown' }}</strong>
+                            <span class="severity-{{ alert.severity }} small">{{ alert.severity|capitalize }}</span>
+                        </div>
+                        <p class="small text-muted mb-1 mt-1">{{ alert.message[:100] }}{% if alert.message|length > 100 %}...{% endif %}</p>
+                        <small class="text-muted">{{ alert.created_at.strftime('%d %b %Y') if alert.created_at else '' }}</small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted-custom mb-0">No performance alerts detected yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="dashboard-card mt-4">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-journal-medical me-2"></i>My Publications</h5>
+                <a href="{{ url_for('researcher.publications_create') }}" class="btn btn-sm btn-primary">New Article</a>
+            </div>
+            <div class="card-body-custom">
+                {% if my_publications %}
+                    {% for pub in my_publications %}
+                    <div class="{% if not loop.last %}mb-3 pb-3 border-bottom{% endif %}">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ pub.title }}</strong>
+                            <span class="badge {% if pub.status == 'published' %}bg-success{% elif pub.status == 'draft' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">{{ pub.status }}</span>
+                        </div>
+                        <div class="small text-muted mt-1">
+                            {{ pub.date_published.strftime('%d %b %Y') if pub.date_published else 'Not published' }}
+                        </div>
+                        <a href="{{ url_for('researcher.publications_edit', pub_id=pub.id) }}" class="btn btn-sm btn-link ps-0">Edit</a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted-custom mb-2">No articles yet.</p>
+                    <a href="{{ url_for('researcher.publications_create') }}" class="btn btn-sm btn-outline-primary">Create First Article</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

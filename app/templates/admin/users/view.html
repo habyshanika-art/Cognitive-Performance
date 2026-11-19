@@ -1,0 +1,195 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ user.full_name }}{% endblock %}
+{% block page_title %}{{ user.full_name }}{% endblock %}
+{% block page_subtitle %}@{{ user.username }} · {{ user.role_name|capitalize }}{% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('admin.users_edit', user_id=user.id) }}" class="btn btn-primary btn-sm">
+    <i class="bi bi-pencil me-1"></i> Edit
+</a>
+{% if user.id != current_user.id %}
+<form method="post" action="{{ url_for('admin.users_toggle_block', user_id=user.id) }}" class="d-inline">
+    <button type="submit" class="btn btn-sm {% if user.is_blocked %}btn-success{% else %}btn-danger{% endif %}">
+        {% if user.is_blocked %}Unblock{% else %}Block{% endif %}
+    </button>
+</form>
+{% endif %}
+<a href="{{ url_for('admin.users_list') }}" class="btn btn-outline-secondary btn-sm">Back</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card stat-card-blue">
+            <div class="stat-icon"><i class="bi bi-keyboard"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ typing_attempts }}/5</span>
+                <span class="stat-label">Typing Attempts</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-card-green">
+            <div class="stat-icon"><i class="bi bi-lightning"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ reaction_attempts }}/5</span>
+                <span class="stat-label">Reaction Attempts</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-card-teal">
+            <div class="stat-icon"><i class="bi bi-graph-up"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ averages.overall_cognitive_score or '—' }}</span>
+                <span class="stat-label">Cognitive Score</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card {% if user.is_blocked %}stat-card-red{% else %}stat-card-gray{% endif %}">
+            <div class="stat-icon"><i class="bi bi-shield-check"></i></div>
+            <div class="stat-body">
+                <span class="stat-value stat-value-sm">{{ 'Blocked' if user.is_blocked else 'Active' }}</span>
+                <span class="stat-label">Account Status</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="dashboard-card">
+            <div class="card-header-custom"><h5>Profile</h5></div>
+            <div class="card-body-custom">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Email</label>
+                        <span>{{ user.email }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Role</label>
+                        <span class="role-badge role-badge-{{ user.role_name }}">{{ user.role_name|capitalize }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Phone</label>
+                        <span>{{ user.phone or '—' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Gender</label>
+                        <span>{{ user.gender or '—' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Date of Birth</label>
+                        <span>{{ user.date_of_birth.strftime('%d %b %Y') if user.date_of_birth else '—' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Joined</label>
+                        <span>{{ user.created_at.strftime('%d %b %Y') if user.created_at else '—' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card mt-4">
+            <div class="card-header-custom"><h5>Averages</h5></div>
+            <div class="card-body-custom">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Avg Typing WPM</label>
+                        <span>{{ averages.avg_typing_speed or '—' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Avg Reaction (ms)</label>
+                        <span>{{ averages.avg_reaction_time|int if averages.avg_reaction_time else '—' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Typing Attempts</label>
+                        <span>{{ averages.typing_attempts or 0 }}/5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="dashboard-card">
+            <div class="card-header-custom"><h5>Recent Assessments</h5></div>
+            <div class="card-body-custom p-0">
+                <div class="table-responsive">
+                    <table class="table admin-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Attempt</th>
+                                <th>Score</th>
+                                <th>Completed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in recent_tasks %}
+                            <tr>
+                                <td>{{ t.task_type|capitalize }}</td>
+                                <td>#{{ t.attempt_number }}</td>
+                                <td>{{ t.score or '—' }}</td>
+                                <td class="small">{{ t.completed_at.strftime('%d %b %Y %H:%M') if t.completed_at else '—' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="4" class="text-center text-muted py-3">No assessments yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card mt-4">
+            <div class="card-header-custom"><h5>Feedback Requests</h5></div>
+            <div class="card-body-custom p-0">
+                <div class="table-responsive">
+                    <table class="table admin-table mb-0">
+                        <thead>
+                            <tr><th>Message</th><th>Status</th><th>Date</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for fr in feedback_requests %}
+                            <tr>
+                                <td>{{ (fr.user_message or '')[:50] }}...</td>
+                                <td><span class="badge bg-secondary">{{ fr.status }}</span></td>
+                                <td class="small">{{ fr.requested_at.strftime('%d %b %Y') if fr.requested_at else '—' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="3" class="text-center text-muted py-3">No feedback requests.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card mt-4">
+            <div class="card-header-custom"><h5>Recent Sessions</h5></div>
+            <div class="card-body-custom p-0">
+                <div class="table-responsive">
+                    <table class="table admin-table mb-0">
+                        <thead>
+                            <tr><th>Started</th><th>IP</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for s in sessions %}
+                            <tr>
+                                <td class="small">{{ s.started_at.strftime('%d %b %Y %H:%M') if s.started_at else '—' }}</td>
+                                <td class="small">{{ s.ip_address or '—' }}</td>
+                                <td>{% if s.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Ended</span>{% endif %}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="3" class="text-center text-muted py-3">No sessions.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

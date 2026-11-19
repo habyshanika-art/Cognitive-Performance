@@ -1,0 +1,78 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Alerts{% endblock %}
+{% block page_title %}System Alerts{% endblock %}
+{% block page_subtitle %}{{ total }} alert{{ 's' if total != 1 else '' }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small text-muted">Severity</label>
+            <select name="severity" class="form-select form-select-sm">
+                <option value="">All severities</option>
+                {% for s in ['low', 'medium', 'high'] %}
+                <option value="{{ s }}" {% if severity_filter == s %}selected{% endif %}>{{ s|capitalize }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="dashboard-card">
+    <div class="card-body-custom p-0">
+        <div class="table-responsive">
+            <table class="table admin-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>User</th>
+                        <th>Message</th>
+                        <th>Severity</th>
+                        <th>Read</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alert in alerts %}
+                    <tr class="{% if not alert.is_read %}table-warning{% endif %}">
+                        <td>{{ alert.alert_type }}</td>
+                        <td>
+                            {% if alert.user %}
+                            <a href="{{ url_for('admin.users_view', user_id=alert.user.id) }}">{{ alert.user.full_name }}</a>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>{{ (alert.message or '')[:60] }}{% if alert.message and alert.message|length > 60 %}...{% endif %}</td>
+                        <td><span class="severity-{{ alert.severity }}">{{ alert.severity|capitalize }}</span></td>
+                        <td>{% if alert.is_read %}<i class="bi bi-check-circle text-success"></i>{% else %}<i class="bi bi-circle text-muted"></i>{% endif %}</td>
+                        <td class="small text-nowrap">{{ alert.created_at.strftime('%d %b %Y') if alert.created_at else '—' }}</td>
+                        <td>
+                            {% if not alert.is_read %}
+                            <form method="post" action="{{ url_for('admin.alerts_mark_read', alert_id=alert.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">Mark Read</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" class="text-center text-muted py-4">No alerts found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if total_pages > 1 %}
+<div class="pagination-bar">
+    <span class="text-muted small">Page {{ page }} of {{ total_pages }}</span>
+    <div>
+        {% if page > 1 %}<a href="?page={{ page - 1 }}&severity={{ severity_filter }}" class="btn btn-sm btn-outline-secondary">Previous</a>{% endif %}
+        {% if page < total_pages %}<a href="?page={{ page + 1 }}&severity={{ severity_filter }}" class="btn btn-sm btn-outline-secondary">Next</a>{% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

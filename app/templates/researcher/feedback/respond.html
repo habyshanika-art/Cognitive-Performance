@@ -1,0 +1,73 @@
+{% extends "researcher/base_researcher.html" %}
+{% block title %}Respond to Feedback #{{ fb_req.id }}{% endblock %}
+{% block page_title %}Feedback Request #{{ fb_req.id }}{% endblock %}
+{% block page_subtitle %}From {{ fb_req.user.display_id if fb_req.user else 'Unknown' }} (anonymised){% endblock %}
+
+{% block header_actions %}
+<a href="{{ url_for('researcher.feedback_list') }}" class="btn btn-outline-secondary btn-sm">Back</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="dashboard-card">
+            <div class="card-header-custom"><h5>Participant Message</h5></div>
+            <div class="card-body-custom">
+                <p>{{ fb_req.user_message or 'No message.' }}</p>
+                <hr>
+                <div class="small text-muted">
+                    Requested: {{ fb_req.requested_at.strftime('%d %b %Y at %H:%M') if fb_req.requested_at else '—' }}
+                </div>
+            </div>
+        </div>
+
+        {% if user_averages %}
+        <div class="dashboard-card mt-4">
+            <div class="card-header-custom"><h5>Participant Metrics Summary</h5></div>
+            <div class="card-body-custom">
+                <div class="row g-3">
+                    <div class="col-4 text-center">
+                        <div class="small text-muted">Avg WPM</div>
+                        <strong>{{ user_averages.avg_typing_speed or '—' }}</strong>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="small text-muted">Avg Reaction</div>
+                        <strong>{{ user_averages.avg_reaction_time|int if user_averages.avg_reaction_time else '—' }} ms</strong>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="small text-muted">Score</div>
+                        <strong>{{ user_averages.overall_cognitive_score or '—' }}</strong>
+                    </div>
+                </div>
+                {% if fb_req.user %}
+                <a href="{{ url_for('researcher.participant_results', user_id=fb_req.user.id) }}" class="btn btn-sm btn-outline-primary mt-3">View Full Results</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="dashboard-card mt-4">
+            <div class="card-header-custom"><h5>Your Response</h5></div>
+            <div class="card-body-custom">
+                {% if already_responded and fb_req.feedback %}
+                <div class="alert alert-success">
+                    <strong>Already responded</strong> on {{ fb_req.feedback.sent_at.strftime('%d %b %Y') if fb_req.feedback.sent_at else '—' }}
+                </div>
+                <p>{{ fb_req.feedback.content }}</p>
+                {% else %}
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Feedback for Participant</label>
+                        <textarea name="content" class="form-control" rows="8" required
+                                  placeholder="Provide your professional feedback on their cognitive performance..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send me-1"></i> Send Feedback
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

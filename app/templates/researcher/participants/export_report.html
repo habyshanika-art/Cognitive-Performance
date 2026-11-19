@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report {{ user.display_id }}</title>
+    <style>
+        body { font-family: Georgia, serif; max-width: 900px; margin: 2rem auto; color: #222; }
+        h1 { font-size: 1.4rem; }
+        .meta { color: #555; margin-bottom: 1.5rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { border: 1px solid #ccc; padding: 0.4rem 0.5rem; text-align: left; }
+        th { background: #f3f3f3; }
+        .flagged { background: #ffebee; }
+        .disclaimer { margin-top: 1.5rem; font-size: 0.85rem; color: #666; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <p class="no-print"><button onclick="window.print()">Print / Save as PDF</button></p>
+    <h1>Participant cycle report — {{ user.display_id }}</h1>
+    <div class="meta">
+        Generated {{ generated_at.strftime('%Y-%m-%d %H:%M') }} UTC<br>
+        Completed cycles: {{ monitoring.completed_cycles }} ·
+        Baseline ready: {{ 'yes' if monitoring.baseline_ready else 'no' }} ·
+        Trend: {{ monitoring.trend }}
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Cycle</th>
+                <th>Typing</th>
+                <th>Reaction</th>
+                <th>Memory</th>
+                <th>Concentration</th>
+                <th>Overall</th>
+                <th>Overall Δ</th>
+                <th>Baseline?</th>
+                <th>Flagged?</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in rows %}
+            <tr class="{{ 'flagged' if r.is_flagged == 'yes' else '' }}">
+                <td>{{ r.cycle }}</td>
+                <td>{{ r.avg_typing_wpm }}</td>
+                <td>{{ r.avg_reaction_ms }}</td>
+                <td>{{ r.avg_memory_score }}</td>
+                <td>{{ r.avg_concentration_score }}</td>
+                <td>{{ r.overall_score }}</td>
+                <td>{{ r.overall_deviation }}</td>
+                <td>{{ r.is_baseline }}</td>
+                <td>{{ r.is_flagged }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8">No aggregated cycles yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p class="disclaimer">
+        Anonymised research export. CogMonitor provides monitoring signals only — not a medical diagnosis.
+        Flagged cycles indicate deviation from the participant’s personal baseline; alerts require persistence across consecutive cycles.
+    </p>
+</body>
+</html>

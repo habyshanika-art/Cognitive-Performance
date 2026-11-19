@@ -1,0 +1,66 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}System Settings{% endblock %}
+{% block page_title %}System Settings{% endblock %}
+{% block page_subtitle %}Configure application behavior{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="dashboard-card">
+            <div class="card-header-custom"><h5><i class="bi bi-gear me-2"></i>General Settings</h5></div>
+            <div class="card-body-custom">
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Site Name</label>
+                        <input type="text" name="site_name" class="form-control"
+                               value="{{ settings_map.site_name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contact Email</label>
+                        <input type="email" name="contact_email" class="form-control"
+                               value="{{ settings_map.contact_email }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assessments Per Cycle</label>
+                        <input type="number" name="assessments_per_cycle" class="form-control" min="1" max="20"
+                               value="{{ settings_map.assessments_per_cycle }}">
+                        <div class="form-text">Number of attempts allowed per assessment type.</div>
+                    </div>
+                    <div class="mb-4 form-check form-switch">
+                        <input type="checkbox" name="maintenance_mode" class="form-check-input" id="maintenanceMode"
+                               {% if settings_map.maintenance_mode %}checked{% endif %}>
+                        <label class="form-check-label" for="maintenanceMode">
+                            <strong>Maintenance Mode</strong>
+                            <div class="form-text">When enabled, only administrators can access the system.</div>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="dashboard-card">
+            <div class="card-header-custom"><h5>All Settings (Database)</h5></div>
+            <div class="card-body-custom p-0">
+                <div class="table-responsive">
+                    <table class="table admin-table mb-0">
+                        <thead>
+                            <tr><th>Key</th><th>Value</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for s in all_settings %}
+                            <tr>
+                                <td class="small"><code>{{ s.setting_key }}</code></td>
+                                <td class="small">{{ (s.setting_value or '')[:40] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

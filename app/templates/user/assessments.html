@@ -1,0 +1,123 @@
+{% extends "user/base_dashboard.html" %}
+
+{% block title %}Assessments{% endblock %}
+
+{% block page_title %}Cognitive Assessments{% endblock %}
+
+{% block page_subtitle %}Cycle {{ current_cycle }} — complete {{ max_attempts }} attempts per test for continuous monitoring{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="dashboard-card mb-4">
+    <div class="card-body-custom">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <strong>Assessment Cycle {{ current_cycle }}</strong>
+                <p class="text-muted-custom mb-0 small">
+                    Four separate tests: Typing, Reaction, Memory, and Concentration.
+                    First {{ monitoring.baseline_cycles_required }} cycles build your personal baseline.
+                    This is <strong>not a diagnosis</strong>.
+                </p>
+            </div>
+            <span class="trend-badge trend-{{ monitoring.trend }}">{{ monitoring.trend|capitalize }}</span>
+        </div>
+        <div class="progress mt-3" style="height: 8px;">
+            <div class="progress-bar" style="width: {{ monitoring.cycle_progress_pct }}%"></div>
+        </div>
+        <small class="text-muted-custom">
+            {{ monitoring.total_done }} / {{ monitoring.total_required }} assessments done this cycle
+            · Baseline {{ monitoring.baseline_cycles_done }}/{{ monitoring.baseline_cycles_required }}
+        </small>
+    </div>
+</div>
+
+<div class="row g-4 assessment-grid">
+    <div class="col-md-6 col-xl-3">
+        <div class="assessment-card assessment-card--typing h-100">
+            <div class="assessment-icon assessment-icon--typing"><i class="bi bi-keyboard"></i></div>
+            <h4>Typing Speed</h4>
+            <p>Type a passage for WPM and accuracy. Paste is blocked.</p>
+            <div class="attempt-progress">
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar progress-bar--typing" style="width: {{ (typing_attempts / max_attempts * 100)|int }}%"></div>
+                </div>
+                <small>{{ typing_attempts }} / {{ max_attempts }} attempts</small>
+            </div>
+            {% if typing_attempts < max_attempts %}
+            <a href="{{ url_for('user.typing_test') }}" class="btn assessment-btn assessment-btn--typing mt-3"><i class="bi bi-play-fill me-1"></i> Start</a>
+            {% else %}
+            <button class="btn btn-secondary mt-3" disabled>Complete</button>
+            {% endif %}
+            <a href="{{ url_for('user.typing_test', practice=1) }}" class="assessment-practice">Practice</a>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="assessment-card assessment-card--reaction h-100">
+            <div class="assessment-icon assessment-icon--reaction"><i class="bi bi-lightning"></i></div>
+            <h4>Reaction Time</h4>
+            <p>Click when the box turns green. Impossible times are rejected.</p>
+            <div class="attempt-progress">
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar progress-bar--reaction" style="width: {{ (reaction_attempts / max_attempts * 100)|int }}%"></div>
+                </div>
+                <small>{{ reaction_attempts }} / {{ max_attempts }} attempts</small>
+            </div>
+            {% if reaction_attempts < max_attempts %}
+            <a href="{{ url_for('user.reaction_test') }}" class="btn assessment-btn assessment-btn--reaction mt-3"><i class="bi bi-play-fill me-1"></i> Start</a>
+            {% else %}
+            <button class="btn btn-secondary mt-3" disabled>Complete</button>
+            {% endif %}
+            <a href="{{ url_for('user.reaction_test', practice=1) }}" class="assessment-practice">Practice</a>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="assessment-card assessment-card--memory h-100">
+            <div class="assessment-icon assessment-icon--memory"><i class="bi bi-brain"></i></div>
+            <h4>Memory</h4>
+            <p>Digit-span recall: remember flashing number sequences.</p>
+            <div class="attempt-progress">
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar progress-bar--memory" style="width: {{ (memory_attempts / max_attempts * 100)|int }}%"></div>
+                </div>
+                <small>{{ memory_attempts }} / {{ max_attempts }} attempts</small>
+            </div>
+            {% if memory_attempts < max_attempts %}
+            <a href="{{ url_for('user.memory_test') }}" class="btn assessment-btn assessment-btn--memory mt-3"><i class="bi bi-play-fill me-1"></i> Start</a>
+            {% else %}
+            <button class="btn btn-secondary mt-3" disabled>Complete</button>
+            {% endif %}
+            <a href="{{ url_for('user.memory_test', practice=1) }}" class="assessment-practice">Practice</a>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="assessment-card assessment-card--concentration h-100">
+            <div class="assessment-icon assessment-icon--concentration"><i class="bi bi-eye"></i></div>
+            <h4>Concentration</h4>
+            <p>Sustained attention: click only when you see the letter X.</p>
+            <div class="attempt-progress">
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar progress-bar--concentration" style="width: {{ (concentration_attempts / max_attempts * 100)|int }}%"></div>
+                </div>
+                <small>{{ concentration_attempts }} / {{ max_attempts }} attempts</small>
+            </div>
+            {% if concentration_attempts < max_attempts %}
+            <a href="{{ url_for('user.concentration_test') }}" class="btn assessment-btn assessment-btn--concentration mt-3"><i class="bi bi-play-fill me-1"></i> Start</a>
+            {% else %}
+            <button class="btn btn-secondary mt-3" disabled>Complete</button>
+            {% endif %}
+            <a href="{{ url_for('user.concentration_test', practice=1) }}" class="assessment-practice">Practice</a>
+        </div>
+    </div>
+</div>
+
+{% if monitoring.cycle_complete %}
+<div class="alert alert-success mt-4">
+    <i class="bi bi-check-circle me-2"></i>
+    <strong>Cycle {{ current_cycle }} complete!</strong>
+    All four tests finished. Start cycle {{ current_cycle + 1 }} anytime.
+</div>
+{% endif %}
+{% endblock %}

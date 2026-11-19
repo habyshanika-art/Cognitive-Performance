@@ -1,0 +1,62 @@
+{% extends "user/base_dashboard.html" %}
+{% block title %}Request Feedback{% endblock %}
+{% block page_title %}Request Feedback{% endblock %}
+{% block page_subtitle %}Ask a researcher to review your cognitive performance{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="dashboard-card">
+            <div class="card-header-custom">
+                <h5><i class="bi bi-chat-dots me-2"></i>New Request</h5>
+            </div>
+            <div class="card-body-custom">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Message to Researcher</label>
+                        <textarea name="message" class="form-control" rows="5" required
+                                  placeholder="Describe what you'd like feedback on..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send me-1"></i> Submit Request
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="dashboard-card">
+            <div class="card-header-custom">
+                <h5><i class="bi bi-clock-history me-2"></i>Previous Requests</h5>
+            </div>
+            <div class="card-body-custom">
+                {% if requests_list %}
+                    {% for req in requests_list %}
+                    <div class="feedback-request-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <span class="badge bg-{% if req.status == 'completed' %}success{% elif req.status == 'pending' %}warning{% else %}secondary{% endif %}">
+                                    {{ req.status|title }}
+                                </span>
+                                <small class="text-muted-custom ms-2">{{ req.requested_at.strftime('%d %b %Y') }}</small>
+                            </div>
+                        </div>
+                        <p class="mt-2 mb-1">{{ req.user_message }}</p>
+                        {% if req.feedback %}
+                        <div class="feedback-reply">
+                            <strong><i class="bi bi-reply"></i> Researcher Response:</strong>
+                            <p>{{ req.feedback.content }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if not loop.last %}<hr>{% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted-custom mb-0">No feedback requests yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "researcher/base_researcher.html" %}
+{% block title %}Performance Alerts{% endblock %}
+{% block page_title %}Performance Alerts{% endblock %}
+{% block page_subtitle %}{{ total }} alert{{ 's' if total != 1 else '' }} from continuous monitoring{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-card">
+    <div class="card-header-custom d-flex justify-content-between align-items-center">
+        <h5><i class="bi bi-exclamation-triangle me-2"></i>Detected Performance Changes</h5>
+        <form method="get" class="d-flex gap-2">
+            <select name="severity" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All severities</option>
+                <option value="low" {% if severity_filter == 'low' %}selected{% endif %}>Low</option>
+                <option value="medium" {% if severity_filter == 'medium' %}selected{% endif %}>Medium</option>
+                <option value="high" {% if severity_filter == 'high' %}selected{% endif %}>High</option>
+            </select>
+        </form>
+    </div>
+    <div class="card-body-custom p-0">
+        <div class="table-responsive">
+            <table class="table admin-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Participant</th>
+                        <th>Message</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alert in alerts %}
+                    <tr class="{% if not alert.is_read %}table-warning{% endif %}">
+                        <td>{{ alert.alert_type|replace('_', ' ')|title }}</td>
+                        <td>
+                            {% if alert.user %}
+                            <a href="{{ url_for('researcher.participant_results', user_id=alert.user.id) }}">
+                                {{ alert.user.display_id if alert.user else '—' }}
+                            </a>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>{{ alert.message }}</td>
+                        <td><span class="severity-{{ alert.severity }}">{{ alert.severity|capitalize }}</span></td>
+                        <td>{% if alert.is_read %}Reviewed{% else %}<strong>New</strong>{% endif %}</td>
+                        <td class="small text-nowrap">{{ alert.created_at.strftime('%d %b %Y') if alert.created_at else '—' }}</td>
+                        <td>
+                            {% if not alert.is_read %}
+                            <form method="post" action="{{ url_for('researcher.alerts_mark_read', alert_id=alert.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-success">Mark Reviewed</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" class="text-center text-muted py-4">No performance alerts yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

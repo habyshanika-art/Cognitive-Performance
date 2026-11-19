@@ -1,0 +1,129 @@
+{# Admin Dashboard Base Layout #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin{% endblock %} — CogMonitor Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/neon-gaming.css') }}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="dashboard-body admin-body">
+    <button class="sidebar-toggle d-lg-none" id="sidebarToggle" aria-label="Toggle menu">
+        <i class="bi bi-list"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="dashboard-sidebar" id="dashboardSidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i class="bi bi-shield-lock"></i></div>
+            <div>
+                <span class="brand-name">CogMonitor</span>
+                <small class="brand-tagline">Admin Panel</small>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}"
+               class="sidebar-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin.users_list') }}"
+               class="sidebar-link {% if request.endpoint in ['admin.users_list', 'admin.users_view', 'admin.users_create', 'admin.users_edit'] %}active{% endif %}">
+                <i class="bi bi-people"></i> Users
+            </a>
+            <a href="{{ url_for('admin.researchers_list') }}"
+               class="sidebar-link {% if request.endpoint in ['admin.researchers_list', 'admin.researchers_create'] %}active{% endif %}">
+                <i class="bi bi-mortarboard"></i> Researchers
+            </a>
+            <a href="{{ url_for('admin.metrics_overview') }}"
+               class="sidebar-link {% if request.endpoint == 'admin.metrics_overview' %}active{% endif %}">
+                <i class="bi bi-bar-chart-line"></i> Metrics
+            </a>
+            <a href="{{ url_for('admin.publications_list') }}"
+               class="sidebar-link {% if request.endpoint in ['admin.publications_list', 'admin.publications_create', 'admin.publications_edit'] %}active{% endif %}">
+                <i class="bi bi-journal-medical"></i> Publications
+            </a>
+            <a href="{{ url_for('admin.feedback_list') }}"
+               class="sidebar-link {% if request.endpoint in ['admin.feedback_list', 'admin.feedback_view'] %}active{% endif %}">
+                <i class="bi bi-chat-dots"></i> Feedback
+            </a>
+            <a href="{{ url_for('admin.alerts_list') }}"
+               class="sidebar-link {% if request.endpoint == 'admin.alerts_list' %}active{% endif %}">
+                <i class="bi bi-exclamation-triangle"></i> Alerts
+            </a>
+            <a href="{{ url_for('admin.notifications_broadcast') }}"
+               class="sidebar-link {% if request.endpoint == 'admin.notifications_broadcast' %}active{% endif %}">
+                <i class="bi bi-bell"></i> Notifications
+            </a>
+            <a href="{{ url_for('admin.logs_list') }}"
+               class="sidebar-link {% if request.endpoint in ['admin.logs_list', 'admin.logs_export'] %}active{% endif %}">
+                <i class="bi bi-journal-text"></i> Audit Logs
+            </a>
+            <a href="{{ url_for('admin.settings') }}"
+               class="sidebar-link {% if request.endpoint == 'admin.settings' %}active{% endif %}">
+                <i class="bi bi-gear"></i> Settings
+            </a>
+            <hr class="sidebar-divider">
+            <a href="{{ url_for('main.index') }}" class="sidebar-link">
+                <i class="bi bi-house"></i> Public Site
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="sidebar-link text-danger">
+                <i class="bi bi-box-arrow-left"></i> Logout
+            </a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="dashboard-flash">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        <header class="dashboard-header">
+            <div>
+                <h1 class="page-title">{% block page_title %}Admin Dashboard{% endblock %}</h1>
+                <p class="page-subtitle">{% block page_subtitle %}{% endblock %}</p>
+            </div>
+            <div class="header-actions">
+                {% block header_actions %}{% endblock %}
+                <div class="header-user">
+                    {% if current_user.profile_picture %}
+                    <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_picture) }}"
+                         alt="Profile" class="header-user-avatar">
+                    {% else %}
+                    <div class="header-user-avatar-placeholder">
+                        {{ current_user.first_name[0] }}{{ current_user.last_name[0] if current_user.last_name else '' }}
+                    </div>
+                    {% endif %}
+                    <div class="header-user-info">
+                        <strong>{{ current_user.full_name }}</strong>
+                        <small>Administrator</small>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            {% block dashboard_content %}{% endblock %}
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

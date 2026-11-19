@@ -1,0 +1,48 @@
+{% extends "user/base_dashboard.html" %}
+{% block title %}Research Consent{% endblock %}
+{% block page_title %}Consent & Disclaimer{% endblock %}
+{% block page_subtitle %}Required before using assessments{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-card">
+    <div class="card-header-custom">
+        <h5><i class="bi bi-shield-check me-2"></i>Informed Consent (v{{ consent_version }})</h5>
+    </div>
+    <div class="card-body-custom">
+        <div class="alert alert-warning">
+            <strong>Not a diagnosis.</strong>
+            CogMonitor tracks typing, reaction, memory, and concentration interaction patterns for research and personal monitoring only.
+            It does <em>not</em> diagnose medical, neurological, or psychiatric conditions. If you have health concerns, contact a qualified clinician.
+        </div>
+
+        <h6>What we collect</h6>
+        <ul>
+            <li>Assessment scores (typing WPM, reaction time, memory score, concentration score)</li>
+            <li>Interaction signals (keystrokes, mouse movement distance, click intervals)</li>
+            <li>Device type (desktop / mobile / tablet)</li>
+            <li>Account email for notifications and security codes</li>
+        </ul>
+
+        <h6>How we protect you</h6>
+        <ul>
+            <li>Researchers see an anonymised ID (e.g. {{ current_user.display_id }}) — not your name or email</li>
+            <li>Alerts fire only after persistent changes across several cycles vs your baseline</li>
+            <li>You may withdraw and delete your assessment data at any time</li>
+        </ul>
+
+        <form method="POST">
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="agree" id="agree" required>
+                <label class="form-check-label" for="agree">
+                    I have read the above, I understand this is <strong>not a medical diagnosis</strong>,
+                    and I consent to participate in cognitive performance monitoring research.
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check2-circle me-1"></i> I Agree — Continue
+            </button>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-secondary ms-2">Decline & Logout</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

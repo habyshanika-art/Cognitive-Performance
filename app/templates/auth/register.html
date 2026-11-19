@@ -1,0 +1,160 @@
+{% extends "auth/base_auth.html" %}
+{% block title %}Register — CogMonitor{% endblock %}
+
+{% block auth_content %}
+<div class="auth-shell auth-shell-register">
+    {# ── Left: Branding ── #}
+    <div class="auth-panel auth-panel-brand">
+        <a href="{{ url_for('auth.login') }}" class="auth-back-link">
+            <i class="bi bi-arrow-left"></i> Login
+        </a>
+
+        <div class="auth-brand-inner">
+            <div class="auth-logo-ring">
+                <div class="auth-logo"><i class="bi bi-heart-pulse"></i></div>
+            </div>
+            <h1 class="auth-brand-heading">Join the<br><span>Research Study</span></h1>
+            <p class="auth-brand-desc">
+                Create your free participant account and start tracking your cognitive performance today.
+            </p>
+
+            <ul class="auth-perks">
+                <li><i class="bi bi-check2-circle"></i> Free for all participants</li>
+                <li><i class="bi bi-check2-circle"></i> Secure &amp; confidential data</li>
+                <li><i class="bi bi-check2-circle"></i> Instant performance insights</li>
+                <li><i class="bi bi-check2-circle"></i> Access to research publications</li>
+            </ul>
+
+            <div class="auth-register-steps">
+                <div class="step-item active"><span>1</span> Register</div>
+                <div class="step-line"></div>
+                <div class="step-item"><span>2</span> Verify</div>
+                <div class="step-line"></div>
+                <div class="step-item"><span>3</span> Assess</div>
+            </div>
+        </div>
+    </div>
+
+    {# ── Right: Register form ── #}
+    <div class="auth-panel auth-panel-form">
+        <div class="auth-form-card auth-form-card-wide">
+            <div class="auth-mobile-logo d-lg-none">
+                <div class="auth-logo-sm"><i class="bi bi-heart-pulse"></i></div>
+                <span>Create Account</span>
+            </div>
+
+            <div class="auth-form-head">
+                <h2>Create your account</h2>
+                <p>All fields marked <span class="text-danger">*</span> are required</p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" class="auth-form" novalidate>
+                {# Profile picture upload with preview #}
+                <div class="auth-avatar-upload mb-4">
+                    <div class="avatar-preview" id="avatarPreview">
+                        <i class="bi bi-camera"></i>
+                    </div>
+                    <div class="avatar-upload-info">
+                        <label for="profile_picture" class="btn btn-sm auth-btn-outline mb-1">
+                            <i class="bi bi-upload me-1"></i> Upload Photo
+                        </label>
+                        <input type="file" id="profile_picture" name="profile_picture"
+                               class="d-none" accept="image/*">
+                        <small class="text-muted d-block">Optional — JPG, PNG up to 5MB</small>
+                    </div>
+                </div>
+
+                <div class="auth-field">
+                    <label for="full_name">Full Name <span class="text-danger">*</span></label>
+                    <div class="auth-input-wrap">
+                        <i class="bi bi-person-badge auth-field-icon"></i>
+                        <input type="text" id="full_name" name="full_name" class="form-control"
+                               placeholder="John Doe" required>
+                    </div>
+                </div>
+
+                <div class="auth-form-grid auth-form-grid-2">
+                    <div class="auth-field">
+                        <label for="username">Username <span class="text-danger">*</span></label>
+                        <div class="auth-input-wrap">
+                            <i class="bi bi-at auth-field-icon"></i>
+                            <input type="text" id="username" name="username" class="form-control"
+                                   placeholder="johndoe" required pattern="[a-zA-Z0-9_]{3,30}">
+                        </div>
+                    </div>
+                    <div class="auth-field">
+                        <label for="email">Email <span class="text-danger">*</span></label>
+                        <div class="auth-input-wrap">
+                            <i class="bi bi-envelope auth-field-icon"></i>
+                            <input type="email" id="email" name="email" class="form-control"
+                                   placeholder="you@example.com" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="auth-form-grid auth-form-grid-2">
+                    <div class="auth-field">
+                        <label for="password">Password <span class="text-danger">*</span></label>
+                        <div class="auth-input-wrap">
+                            <i class="bi bi-lock auth-field-icon"></i>
+                            <input type="password" id="password" name="password" class="form-control"
+                                   placeholder="Min. 8 characters" required minlength="8">
+                            <button type="button" class="auth-eye-btn password-toggle" data-target="password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar"><div class="strength-fill"></div></div>
+                            <small class="strength-text">Password strength</small>
+                        </div>
+                    </div>
+                    <div class="auth-field">
+                        <label for="confirm_password">Confirm Password <span class="text-danger">*</span></label>
+                        <div class="auth-input-wrap">
+                            <i class="bi bi-shield-lock auth-field-icon"></i>
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-control"
+                                   placeholder="Repeat password" required>
+                            <button type="button" class="auth-eye-btn password-toggle" data-target="confirm_password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="auth-form-grid auth-form-grid-2">
+                    <div class="auth-field">
+                        <label for="date_of_birth">Date of Birth</label>
+                        <div class="auth-input-wrap">
+                            <i class="bi bi-calendar3 auth-field-icon"></i>
+                            <input type="date" id="date_of_birth" name="date_of_birth" class="form-control">
+                        </div>
+                    </div>
+                    <div class="auth-field">
+                        <label for="gender">Gender</label>
+                        <div class="auth-input-wrap">
+                            <i class="bi bi-gender-ambiguous auth-field-icon"></i>
+                            <select id="gender" name="gender" class="form-select auth-select">
+                                <option value="">Select gender...</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn auth-btn-success w-100 mt-2">
+                    <i class="bi bi-person-plus me-2"></i>Register Account
+                </button>
+            </form>
+
+            <div class="auth-separator"><span>Already registered?</span></div>
+
+            <a href="{{ url_for('auth.login') }}" class="btn auth-btn-outline w-100">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Back to Login
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

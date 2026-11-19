@@ -1,0 +1,160 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block page_subtitle %}System overview and recent activity{% endblock %}
+
+{% block dashboard_content %}
+{% if maintenance_mode %}
+<div class="maintenance-banner">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    <strong>Maintenance mode is ON</strong> — only admins can access the system.
+</div>
+{% endif %}
+
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-blue">
+            <div class="stat-icon"><i class="bi bi-people"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ total_users }}</span>
+                <span class="stat-label">Participants</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-green">
+            <div class="stat-icon"><i class="bi bi-mortarboard"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ total_researchers }}</span>
+                <span class="stat-label">Researchers</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-teal">
+            <div class="stat-icon"><i class="bi bi-clipboard2-check"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ total_assessments }}</span>
+                <span class="stat-label">Assessments Done</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-red">
+            <div class="stat-icon"><i class="bi bi-person-x"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ blocked_users }}</span>
+                <span class="stat-label">Blocked Accounts</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-orange">
+            <div class="stat-icon"><i class="bi bi-wifi"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ active_sessions }}</span>
+                <span class="stat-label">Active Sessions</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-purple">
+            <div class="stat-icon"><i class="bi bi-chat-dots"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ pending_feedback }}</span>
+                <span class="stat-label">Pending Feedback</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-gray">
+            <div class="stat-icon"><i class="bi bi-exclamation-triangle"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ unread_alerts }}</span>
+                <span class="stat-label">Unread Alerts</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-blue">
+            <div class="stat-icon"><i class="bi bi-journal-medical"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ total_publications }}</span>
+                <span class="stat-label">Publications</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="dashboard-card">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-journal-text me-2"></i>Recent Audit Logs</h5>
+                <a href="{{ url_for('admin.logs_list') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body-custom p-0">
+                <div class="table-responsive">
+                    <table class="table admin-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Details</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in recent_logs %}
+                            <tr>
+                                <td><span class="log-action-tag">{{ log.action }}</span></td>
+                                <td class="text-muted small">{{ (log.details or '')[:60] }}{% if log.details and log.details|length > 60 %}...{% endif %}</td>
+                                <td class="small text-nowrap">{{ log.created_at.strftime('%d %b %H:%M') if log.created_at else '—' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="3" class="text-muted text-center py-4">No logs yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="dashboard-card">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-person-plus me-2"></i>Recent Users</h5>
+                <a href="{{ url_for('admin.users_list') }}" class="btn btn-sm btn-outline-primary">Manage</a>
+            </div>
+            <div class="card-body-custom">
+                {% for u in recent_users %}
+                <div class="d-flex justify-content-between align-items-center {% if not loop.last %}mb-3 pb-3 border-bottom{% endif %}">
+                    <div>
+                        <strong>{{ u.full_name }}</strong>
+                        <div class="small text-muted">@{{ u.username }} · {{ u.role_name }}</div>
+                    </div>
+                    <a href="{{ url_for('admin.users_view', user_id=u.id) }}" class="btn btn-sm btn-outline-secondary">View</a>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">No users registered yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="dashboard-card mt-4">
+            <div class="card-header-custom">
+                <h5><i class="bi bi-lightning me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body-custom action-btn-group">
+                <a href="{{ url_for('admin.users_create') }}" class="btn btn-primary btn-sm"><i class="bi bi-person-plus me-1"></i> Create User</a>
+                <a href="{{ url_for('admin.publications_create') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-plus-lg me-1"></i> New Publication</a>
+                <a href="{{ url_for('admin.notifications_broadcast') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-bell me-1"></i> Broadcast</a>
+                <a href="{{ url_for('admin.settings') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-gear me-1"></i> Settings</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

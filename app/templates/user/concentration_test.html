@@ -1,0 +1,63 @@
+{% extends "user/base_dashboard.html" %}
+{% block title %}Concentration Test{% endblock %}
+{% block page_title %}Concentration Test{% endblock %}
+{% block page_subtitle %}
+    {% if is_practice %}Practice attempt (not counted){% else %}Attempt {{ attempt_number }} of 5{% endif %}
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-card assessment-test-card">
+    <div class="card-body-custom">
+        <div id="concentrationTestArea">
+            <div class="test-instructions mb-4">
+                <p>
+                    Letters will flash one by one. Click <strong>only</strong> when you see the letter
+                    <strong class="text-danger">X</strong>. Ignore every other letter.
+                    This measures sustained attention — separate from the memory (digit recall) test.
+                </p>
+            </div>
+
+            <div id="concentrationDisplay" class="passage-box mb-3 text-center"
+                 style="font-size:3rem; font-weight:700; min-height:5rem; line-height:5rem;">
+                Click Start to begin
+            </div>
+
+            <div class="test-stats row g-3">
+                <div class="col-4 text-center">
+                    <div class="test-stat"><span id="concTrial">0</span> / 30</div>
+                    <small>Trials</small>
+                </div>
+                <div class="col-4 text-center">
+                    <div class="test-stat"><span id="concHits">0</span></div>
+                    <small>Hits on X</small>
+                </div>
+                <div class="col-4 text-center">
+                    <div class="test-stat"><span id="concFalse">0</span></div>
+                    <small>False clicks</small>
+                </div>
+            </div>
+
+            <div class="test-actions mt-4 text-center">
+                <button id="startConcentrationBtn" class="btn btn-info btn-lg">
+                    <i class="bi bi-play-fill me-1"></i> Start
+                </button>
+                <button id="clickConcentrationBtn" class="btn btn-danger btn-lg d-none" type="button" disabled>
+                    <i class="bi bi-hand-index me-1"></i> Click for X
+                </button>
+            </div>
+
+            <div id="concentrationResult" class="alert alert-success mt-3 d-none"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const SUBMIT_URL = "{{ url_for('user.submit_assessment') }}";
+    const REDIRECT_URL = "{{ url_for('user.results') }}";
+    const IS_PRACTICE = {{ 'true' if is_practice else 'false' }};
+</script>
+<script src="{{ url_for('static', filename='js/assessments.js') }}"></script>
+<script>initConcentrationTest();</script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{# Landing page navigation bar #}
+<nav class="navbar navbar-landing navbar-expand-lg fixed-top">
+    <div class="container">
+        <a class="navbar-brand-custom" href="{{ url_for('main.index') }}">
+            <div class="brand-icon"><i class="bi bi-heart-pulse"></i></div>
+            <span>CogMonitor</span>
+        </a>
+
+        <div class="navbar-auth-btns">
+            {% if current_user.is_authenticated %}
+                {% if current_user.role_name == 'admin' %}
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary btn-sm px-3">
+                        <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                    </a>
+                {% elif current_user.role_name == 'researcher' %}
+                    <a href="{{ url_for('researcher.dashboard') }}" class="btn btn-primary btn-sm px-3">
+                        <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('user.dashboard') }}" class="btn btn-primary btn-sm px-3">
+                        <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm px-3">Logout</a>
+            {% else %}
+                <a href="/login" class="btn btn-outline-primary btn-sm px-3">Login</a>
+                <a href="/register" class="btn btn-success btn-sm px-3">Register</a>
+            {% endif %}
+        </div>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link nav-link-custom" href="{{ url_for('main.index') }}#about">About</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-custom" href="{{ url_for('main.index') }}#features">Features</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-custom" href="{{ url_for('main.index') }}#benefits">Benefits</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-custom" href="{{ url_for('main.index') }}#publications">Research</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-custom" href="{{ url_for('main.index') }}#contact">Contact</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>

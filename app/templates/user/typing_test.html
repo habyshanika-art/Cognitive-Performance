@@ -1,0 +1,57 @@
+{% extends "user/base_dashboard.html" %}
+{% block title %}Typing Speed Test{% endblock %}
+{% block page_title %}Typing Speed Test{% endblock %}
+{% block page_subtitle %}{% if is_practice %}Practice (not counted){% else %}Attempt {{ attempt_number }} of 5{% endif %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-card assessment-test-card">
+    <div class="card-body-custom">
+        <div id="typingTestArea">
+            <div class="test-instructions mb-4">
+                <p>Type the passage below as quickly and accurately as you can. Press <strong>Start</strong>, then when you finish the whole passage click <strong>Submit</strong> — your exact finish time, WPM, and accuracy will be saved.</p>
+            </div>
+
+            <div class="passage-box mb-3" id="passageDisplay"></div>
+
+            <textarea id="typingInput" class="form-control typing-input" rows="4"
+                      placeholder="Click Start, then type here..." disabled></textarea>
+
+            <div class="test-stats row g-3 mt-3">
+                <div class="col-4 text-center">
+                    <div class="test-stat"><span id="timerDisplay">60</span>s</div>
+                    <small>Time Left</small>
+                </div>
+                <div class="col-4 text-center">
+                    <div class="test-stat"><span id="wpmDisplay">0</span></div>
+                    <small>WPM</small>
+                </div>
+                <div class="col-4 text-center">
+                    <div class="test-stat"><span id="accuracyDisplay">100</span>%</div>
+                    <small>Accuracy</small>
+                </div>
+            </div>
+
+            <div class="test-actions mt-4">
+                <button id="startTypingBtn" class="btn btn-primary btn-lg">
+                    <i class="bi bi-play-fill me-1"></i> Start
+                </button>
+                <button id="submitTypingBtn" class="btn btn-success btn-lg d-none" type="button">
+                    <i class="bi bi-check-lg me-1"></i> Submit
+                </button>
+            </div>
+
+            <div id="typingResult" class="alert alert-success mt-3 d-none"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const SUBMIT_URL = "{{ url_for('user.submit_assessment') }}";
+    const REDIRECT_URL = "{{ url_for('user.results') }}";
+    const IS_PRACTICE = {{ 'true' if is_practice else 'false' }};
+</script>
+<script src="{{ url_for('static', filename='js/assessments.js') }}"></script>
+<script>initTypingTest();</script>
+{% endblock %}

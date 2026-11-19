@@ -1,0 +1,562 @@
+{% extends "user/base_dashboard.html" %}
+
+{% block title %}My Results{% endblock %}
+
+{% block page_title %}My Results{% endblock %}
+
+{% block page_subtitle %}Your cognitive assessment history, scores, and personalised guidance{% endblock %}
+
+
+
+{% block dashboard_content %}
+
+{# Summary averages #}
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-4">
+
+        <div class="stat-card stat-card-blue">
+
+            <div class="stat-icon"><i class="bi bi-keyboard"></i></div>
+
+            <div class="stat-body">
+
+                <span class="stat-value">{{ averages.avg_typing_speed or '—' }}</span>
+
+                <span class="stat-label">Avg Typing Speed (WPM)</span>
+
+                {% if feedback.typing %}
+
+                <span class="result-badge result-badge-{{ feedback.typing.level }}">{{ feedback.typing.label }}</span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="stat-card stat-card-green">
+
+            <div class="stat-icon"><i class="bi bi-lightning"></i></div>
+
+            <div class="stat-body">
+
+                <span class="stat-value">{{ averages.avg_reaction_time|int if averages.avg_reaction_time else '—' }}</span>
+
+                <span class="stat-label">Avg Reaction Time (ms)</span>
+
+                {% if feedback.reaction %}
+
+                <span class="result-badge result-badge-{{ feedback.reaction.level }}">{{ feedback.reaction.label }}</span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="stat-card stat-card-teal">
+
+            <div class="stat-icon"><i class="bi bi-award"></i></div>
+
+            <div class="stat-body">
+
+                <span class="stat-value">{{ averages.overall_cognitive_score or '—' }}</span>
+
+                <span class="stat-label">Overall Cognitive Score</span>
+
+                {% if feedback.overall %}
+
+                <span class="result-badge result-badge-{{ feedback.overall.level }}">{{ feedback.overall.label }}</span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+{% if monitoring %}
+
+<div class="dashboard-card monitoring-status-card mb-4">
+
+    <div class="card-body-custom">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+            <div>
+
+                <strong>Continuous Monitoring — Cycle {{ monitoring.current_cycle }}</strong>
+
+                <p class="text-muted-custom mb-0 small">{{ monitoring.trend_detail }}</p>
+
+            </div>
+
+            <span class="trend-badge trend-{{ monitoring.trend }}">{{ monitoring.trend|capitalize }}</span>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+
+{# Overall summary feedback #}
+
+{% if feedback.overall %}
+
+<div class="dashboard-card feedback-summary feedback-{{ feedback.overall.level }} mb-4">
+
+    <div class="feedback-summary-inner">
+
+        <div class="feedback-summary-icon">
+
+            <i class="bi bi-{% if feedback.overall.level == 'good' %}emoji-smile{% elif feedback.overall.level == 'average' %}emoji-neutral{% else %}exclamation-circle{% endif %}"></i>
+
+        </div>
+
+        <div>
+
+            <h5 class="feedback-title">{{ feedback.overall.headline }}</h5>
+
+            <p class="feedback-message mb-0">{{ feedback.overall.message }}</p>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+
+{# Per-metric guidance #}
+
+{% if feedback.has_any_data %}
+
+<div class="row g-4 mb-4">
+
+    {% if feedback.typing %}
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card feedback-card feedback-{{ feedback.typing.level }} h-100">
+
+            <div class="card-header-custom">
+
+                <h5><i class="bi bi-keyboard me-2"></i>Typing — {{ feedback.typing.label }}</h5>
+
+            </div>
+
+            <div class="card-body-custom">
+
+                <p class="feedback-headline">{{ feedback.typing.headline }}</p>
+
+                <p class="feedback-message">{{ feedback.typing.message }}</p>
+
+                <p class="feedback-tips-label"><strong>How to {% if feedback.typing.level == 'good' %}stay on track{% elif feedback.typing.level == 'average' %}improve{% else %}improve{% endif %}:</strong></p>
+
+                <ul class="feedback-tips">
+
+                    {% for tip in feedback.typing.tips %}
+
+                    <li>{{ tip }}</li>
+
+                    {% endfor %}
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+
+    {% if feedback.reaction %}
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card feedback-card feedback-{{ feedback.reaction.level }} h-100">
+
+            <div class="card-header-custom">
+
+                <h5><i class="bi bi-lightning me-2"></i>Reaction — {{ feedback.reaction.label }}</h5>
+
+            </div>
+
+            <div class="card-body-custom">
+
+                <p class="feedback-headline">{{ feedback.reaction.headline }}</p>
+
+                <p class="feedback-message">{{ feedback.reaction.message }}</p>
+
+                <p class="feedback-tips-label"><strong>How to {% if feedback.reaction.level == 'good' %}stay on track{% elif feedback.reaction.level == 'average' %}prevent decline{% else %}improve{% endif %}:</strong></p>
+
+                <ul class="feedback-tips">
+
+                    {% for tip in feedback.reaction.tips %}
+
+                    <li>{{ tip }}</li>
+
+                    {% endfor %}
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+
+{% if feedback.overall and feedback.overall.tips %}
+
+<div class="dashboard-card feedback-card feedback-{{ feedback.overall.level }} mb-4">
+
+    <div class="card-header-custom">
+
+        <h5><i class="bi bi-lightbulb me-2"></i>Overall Recommendations</h5>
+
+    </div>
+
+    <div class="card-body-custom">
+
+        <ul class="feedback-tips mb-0">
+
+            {% for tip in feedback.overall.tips %}
+
+            <li>{{ tip }}</li>
+
+            {% endfor %}
+
+        </ul>
+
+        <div class="feedback-cta mt-3">
+
+            <a href="{{ url_for('user.assessments') }}" class="btn btn-primary btn-sm me-2">
+
+                <i class="bi bi-play-circle me-1"></i>Take Another Assessment
+
+            </a>
+
+            <a href="{{ url_for('user.request_feedback') }}" class="btn btn-outline-primary btn-sm">
+
+                <i class="bi bi-chat-dots me-1"></i>Request Researcher Feedback
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+
+{% if feedback.memory or feedback.concentration %}
+<div class="row g-4 mb-4">
+    {% if feedback.memory %}
+    <div class="col-lg-6">
+        <div class="dashboard-card feedback-card feedback-{{ feedback.memory.level }} h-100">
+            <div class="card-header-custom">
+                <h5><i class="bi bi-brain me-2"></i>Memory — {{ feedback.memory.label }}</h5>
+            </div>
+            <div class="card-body-custom">
+                <p class="feedback-headline">{{ feedback.memory.headline }}</p>
+                <p class="feedback-message">{{ feedback.memory.message }}</p>
+                <ul class="feedback-tips">
+                    {% for tip in feedback.memory.tips %}<li>{{ tip }}</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if feedback.concentration %}
+    <div class="col-lg-6">
+        <div class="dashboard-card feedback-card feedback-{{ feedback.concentration.level }} h-100">
+            <div class="card-header-custom">
+                <h5><i class="bi bi-eye me-2"></i>Concentration — {{ feedback.concentration.label }}</h5>
+            </div>
+            <div class="card-body-custom">
+                <p class="feedback-headline">{{ feedback.concentration.headline }}</p>
+                <p class="feedback-message">{{ feedback.concentration.message }}</p>
+                <ul class="feedback-tips">
+                    {% for tip in feedback.concentration.tips %}<li>{{ tip }}</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+
+<div class="dashboard-card mb-4">
+
+    <div class="card-body-custom text-center py-5">
+
+        <i class="bi bi-clipboard-data display-4 text-muted mb-3 d-block"></i>
+
+        <h5>No results yet</h5>
+
+        <p class="text-muted-custom mb-3">Complete typing, reaction, memory, and concentration assessments to see your scores.</p>
+
+        <a href="{{ url_for('user.assessments') }}" class="btn btn-primary">Start Assessments</a>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+<div class="dashboard-card mb-4">
+    <div class="card-header-custom">
+        <h5><i class="bi bi-graph-up me-2"></i>Cycle trends (baseline band · red = flagged)</h5>
+    </div>
+    <div class="card-body-custom"><canvas id="cycleTrendChart" height="120"></canvas></div>
+</div>
+
+{# Detailed attempt history #}
+
+<div class="row g-4">
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom">
+
+                <h5><i class="bi bi-keyboard me-2"></i>Typing Speed Results</h5>
+
+            </div>
+
+            <div class="card-body-custom">
+
+                {% if typing_metrics %}
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover results-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Attempt</th>
+
+                                <th>WPM</th>
+
+                                <th>Date</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for m in typing_metrics %}
+
+                            <tr>
+
+                                <td>{{ m.attempt_number }}</td>
+
+                                <td>{{ m.typing_speed_wpm }}</td>
+
+                                <td>{{ m.calculated_at.strftime('%d %b %Y') }}</td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                {% else %}
+
+                <p class="text-muted-custom">No typing tests completed yet.
+
+                    <a href="{{ url_for('user.typing_test') }}">Take a test</a>
+
+                </p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card">
+
+            <div class="card-header-custom">
+
+                <h5><i class="bi bi-lightning me-2"></i>Reaction Time Results</h5>
+
+            </div>
+
+            <div class="card-body-custom">
+
+                {% if reaction_metrics %}
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover results-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Attempt</th>
+
+                                <th>Time (ms)</th>
+
+                                <th>Date</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for m in reaction_metrics %}
+
+                            <tr>
+
+                                <td>{{ m.attempt_number }}</td>
+
+                                <td>{{ m.response_time_ms }}</td>
+
+                                <td>{{ m.calculated_at.strftime('%d %b %Y') }}</td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                {% else %}
+
+                <p class="text-muted-custom">No reaction tests completed yet.
+
+                    <a href="{{ url_for('user.reaction_test') }}">Take a test</a>
+
+                </p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-6">
+        <div class="dashboard-card">
+            <div class="card-header-custom">
+                <h5><i class="bi bi-brain me-2"></i>Memory Results (this cycle)</h5>
+            </div>
+            <div class="card-body-custom">
+                {% if memory_metrics %}
+                <div class="table-responsive">
+                    <table class="table table-hover results-table">
+                        <thead><tr><th>Attempt</th><th>Score</th><th>Date</th></tr></thead>
+                        <tbody>
+                            {% for m in memory_metrics %}
+                            <tr>
+                                <td>{{ m.attempt_number }}</td>
+                                <td>{{ m.memory_score }}</td>
+                                <td>{{ m.calculated_at.strftime('%d %b %Y') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted-custom">No memory tests yet. <a href="{{ url_for('user.memory_test') }}">Take a test</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="dashboard-card">
+            <div class="card-header-custom">
+                <h5><i class="bi bi-eye me-2"></i>Concentration Results (this cycle)</h5>
+            </div>
+            <div class="card-body-custom">
+                {% if concentration_metrics %}
+                <div class="table-responsive">
+                    <table class="table table-hover results-table">
+                        <thead><tr><th>Attempt</th><th>Score</th><th>Date</th></tr></thead>
+                        <tbody>
+                            {% for m in concentration_metrics %}
+                            <tr>
+                                <td>{{ m.attempt_number }}</td>
+                                <td>{{ m.concentration_score }}</td>
+                                <td>{{ m.calculated_at.strftime('%d %b %Y') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted-custom">No concentration tests yet. <a href="{{ url_for('user.concentration_test') }}">Take a test</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const cycleData = {{ cycle_chart|safe }};
+    initCycleTrendChart(cycleData);
+</script>
+{% endblock %}
+
+

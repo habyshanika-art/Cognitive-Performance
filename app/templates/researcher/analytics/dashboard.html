@@ -1,0 +1,90 @@
+{% extends "researcher/base_researcher.html" %}
+{% block title %}Analytics{% endblock %}
+{% block page_title %}Analytics & Reports{% endblock %}
+{% block page_subtitle %}Cohort-level cognitive performance insights{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-blue">
+            <div class="stat-icon"><i class="bi bi-people"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ cohort.total_participants }}</span>
+                <span class="stat-label">Total Participants</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-green">
+            <div class="stat-icon"><i class="bi bi-graph-up"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ cohort.participants_with_data }}</span>
+                <span class="stat-label">With Assessment Data</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-teal">
+            <div class="stat-icon"><i class="bi bi-arrow-repeat"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ cohort.total_cycles_completed }}</span>
+                <span class="stat-label">Cycles Completed</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card-orange">
+            <div class="stat-icon"><i class="bi bi-exclamation-triangle"></i></div>
+            <div class="stat-body">
+                <span class="stat-value">{{ cohort.unread_alerts }}</span>
+                <span class="stat-label">Unread Alerts</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="dashboard-card">
+            <div class="card-header-custom"><h5><i class="bi bi-file-earmark-bar-graph me-2"></i>Generate Report</h5></div>
+            <div class="card-body-custom">
+                <p class="text-muted-custom">Create a snapshot of cohort performance including average scores and alert counts.</p>
+                <form method="post" action="{{ url_for('researcher.analytics_generate') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Report Title</label>
+                        <input type="text" name="title" class="form-control"
+                               value="Cohort Performance Summary — {{ cohort.avg_latest_score }} avg score">
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-download me-1"></i> Generate Report
+                    </button>
+                </form>
+                <hr>
+                <p class="mb-1"><strong>Average latest cognitive score:</strong> {{ cohort.avg_latest_score }}</p>
+                <p class="mb-0"><strong>Total alerts generated:</strong> {{ cohort.total_alerts }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="dashboard-card">
+            <div class="card-header-custom"><h5><i class="bi bi-clock-history me-2"></i>Saved Reports</h5></div>
+            <div class="card-body-custom">
+                {% if reports %}
+                    {% for report in reports %}
+                    <div class="{% if not loop.last %}mb-3 pb-3 border-bottom{% endif %}">
+                        <strong>{{ report.title }}</strong>
+                        <div class="small text-muted mb-2">
+                            {{ report.generated_at.strftime('%d %b %Y, %H:%M') if report.generated_at else '' }}
+                            · {{ report.report_type|replace('_', ' ')|title }}
+                        </div>
+                        <pre class="report-content small mb-0">{{ report.content }}</pre>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted-custom mb-0">No reports generated yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

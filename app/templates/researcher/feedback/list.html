@@ -1,0 +1,76 @@
+{% extends "researcher/base_researcher.html" %}
+{% block title %}Feedback Requests{% endblock %}
+{% block page_title %}Provide Feedback{% endblock %}
+{% block page_subtitle %}Respond to participant feedback requests{% endblock %}
+
+{% block dashboard_content %}
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small text-muted">Status</label>
+            <select name="status" class="form-select form-select-sm">
+                {% for s in ['pending', 'accepted', 'completed', 'ignored', ''] %}
+                <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>
+                    {{ s|capitalize if s else 'All' }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="dashboard-card">
+    <div class="card-body-custom p-0">
+        <div class="table-responsive">
+            <table class="table admin-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Participant</th>
+                        <th>Message</th>
+                        <th>Status</th>
+                        <th>Requested</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests_list %}
+                    <tr>
+                        <td>
+                            <strong>{{ req.user.display_id if req.user else '—' }}</strong>
+                            <div class="small text-muted">anonymised participant</div>
+                        </td>
+                        <td>{{ (req.user_message or '')[:80] }}{% if req.user_message and req.user_message|length > 80 %}...{% endif %}</td>
+                        <td>
+                            <span class="badge {% if req.status == 'pending' %}bg-warning text-dark{% elif req.status == 'completed' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ req.status }}
+                            </span>
+                        </td>
+                        <td class="small">{{ req.requested_at.strftime('%d %b %Y') if req.requested_at else '—' }}</td>
+                        <td>
+                            <a href="{{ url_for('researcher.feedback_respond', req_id=req.id) }}" class="btn btn-sm btn-outline-primary">
+                                {% if req.status == 'completed' %}View{% else %}Respond{% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">No feedback requests.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if total_pages > 1 %}
+<div class="pagination-bar">
+    <span class="text-muted small">Page {{ page }} of {{ total_pages }}</span>
+    <div>
+        {% if page > 1 %}<a href="?page={{ page - 1 }}&status={{ status_filter }}" class="btn btn-sm btn-outline-secondary">Previous</a>{% endif %}
+        {% if page < total_pages %}<a href="?page={{ page + 1 }}&status={{ status_filter }}" class="btn btn-sm btn-outline-secondary">Next</a>{% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
